@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grand Luxe Hotel ERP — One Platform. Every Hotel Operation.</title>
+    <title>Lodgely — Hospitality Management Platform</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/lodgely-icon.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,13 +14,8 @@
     <!-- 1. Floating Rounded Navigation Bar (Image 1 Inspired) -->
     <header class="landing-nav-wrap">
         <nav class="landing-nav">
-            <a href="{{ url_for('dashboard.landing') }}" class="landing-nav-brand">
-                <div class="brand-icon-star">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
-                    </svg>
-                </div>
-                <span>Grand Luxe</span>
+            <a href="{{ url_for('dashboard.landing') }}" class="landing-nav-brand" title="Lodgely — Hospitality Management Platform">
+                <img src="{{ url_for('static', filename='img/lodgely-logo-trans.png') }}" alt="Lodgely — Hospitality Management Platform" class="landing-brand-logo">
             </a>
 
             <ul class="landing-nav-links">
@@ -385,15 +381,9 @@
     <!-- 7. Footer -->
     <footer class="landing-footer">
         <div class="landing-footer-inner">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <div class="brand-icon-star" style="width: 30px; height: 30px;">
-                    <svg viewBox="0 0 24 24" style="width: 18px; height: 18px;"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
-                </div>
-                <div>
-                    <strong style="color: #19171E; font-size: 1rem;">Grand Luxe Hotel ERP</strong>
-                    <div style="font-size: 0.78rem; color: #716D7C;">Design and Development of a Database-Driven Web Application</div>
-                </div>
-            </div>
+            <a href="{{ url_for('dashboard.landing') }}" style="display: flex; align-items: center; gap: 12px; text-decoration: none;" title="Lodgely — Hospitality Management Platform">
+                <img src="{{ url_for('static', filename='img/lodgely-logo-trans.png') }}" alt="Lodgely" style="height: 38px; width: auto; object-fit: contain;">
+            </a>
 
             <div style="display: flex; gap: 20px; font-size: 0.85rem; color: #716D7C;">
                 <a href="{{ url_for('dashboard.index') }}">Dashboard</a>

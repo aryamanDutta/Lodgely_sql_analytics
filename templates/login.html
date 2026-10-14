@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Login — Grand Luxe Hotel ERP</title>
+    <title>Staff Login — Lodgely ERP</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/lodgely-icon.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,16 +14,8 @@
     <div class="login-card">
         <!-- Logo & Brand Header -->
         <div class="login-brand-header">
-            <a href="{{ url_for('dashboard.landing') }}" style="display: inline-flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                <div class="brand-icon-star" style="width: 40px; height: 40px;">
-                    <svg viewBox="0 0 24 24" style="width: 22px; height: 22px;">
-                        <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
-                    </svg>
-                </div>
-                <div style="text-align: left;">
-                    <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); line-height: 1.1;">Grand Luxe</div>
-                    <div style="font-size: 0.74rem; color: var(--text-secondary); font-weight: 500;">Hotel ERP Platform</div>
-                </div>
+            <a href="{{ url_for('dashboard.landing') }}" style="display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px; text-decoration: none;" title="Lodgely — Hospitality Management Platform (Click to visit Public Landing Page)">
+                <img src="{{ url_for('static', filename='img/lodgely-logo-trans.png') }}" alt="Lodgely — Hospitality Management Platform" style="height: 48px; width: auto; object-fit: contain;">
             </a>
             <h2>Welcome Back</h2>
             <p>Enter your staff credentials to access the operational ERP dashboard.</p>

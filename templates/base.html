@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Grand Luxe - Hotel Management ERP{% endblock %}</title>
+    <title>{% block title %}Lodgely — Hospitality Management Platform{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/lodgely-icon.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,16 +14,8 @@
     <!-- Sidebar Navigation (Image 3 & Image 2 Target) -->
     <aside class="sidebar">
         <div class="sidebar-header">
-            <a href="{{ url_for('dashboard.index') }}" class="brand-wrapper">
-                <div class="brand-icon-star">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
-                    </svg>
-                </div>
-                <div>
-                    <div class="brand-text-title">Grand Luxe</div>
-                    <div class="brand-text-subtitle">Hotel ERP</div>
-                </div>
+            <a href="{{ url_for('dashboard.landing') }}" class="brand-wrapper" title="Lodgely — Hospitality Management Platform (Click to view Public Landing Page)">
+                <img src="{{ url_for('static', filename='img/lodgely-logo-trans.png') }}" alt="Lodgely — Hospitality Management Platform" class="brand-logo-img">
             </a>
         </div>
 

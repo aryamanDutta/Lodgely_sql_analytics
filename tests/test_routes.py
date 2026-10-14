@@ -38,6 +38,8 @@ def test_landing_page_rendering(mock_query_one, client):
     }
     response = client.get('/')
     assert response.status_code == 200
+    assert b"Lodgely" in response.data
+    assert b"Hospitality Management Platform" in response.data
     assert b"Grand Luxe" in response.data
     assert b"One Platform." in response.data
     assert b"Every Hotel Operation." in response.data
