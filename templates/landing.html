@@ -11,6 +11,9 @@
 </head>
 <body class="landing-body">
 
+    <!-- Interactive 3D Architectural Scene Canvas (Hardware-Accelerated Non-Blocking Background) -->
+    <canvas id="landing-3d-canvas" class="landing-3d-canvas" aria-hidden="true"></canvas>
+
     <!-- 1. Floating Rounded Navigation Bar (Image 1 Inspired) -->
     <header class="landing-nav-wrap">
         <nav class="landing-nav">
@@ -400,7 +403,11 @@
         </div>
     </footer>
 
-    <!-- Scroll Animation Script -->
+    <!-- 3D Graphics Engine & Interactive Architectural Scene -->
+    <script src="{{ url_for('static', filename='js/three.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/landing-3d.js') }}"></script>
+
+    <!-- Scroll-Driven Section Storytelling & Reveals -->
     <script src="{{ url_for('static', filename='js/landing.js') }}"></script>
 </body>
 </html>
