@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Hotel Services - Grand Luxe ERP{% endblock %}
+{% block page_heading %}Guest Services & Premium Amenities{% endblock %}
+
+{% block content %}
+<!-- Filters -->
+<div class="filter-card">
+    <form method="GET" action="{{ url_for('services.list_services') }}">
+        <div class="filter-grid">
+            <div class="form-group">
+                <label for="search">Search Service / Keyword</label>
+                <input type="text" id="search" name="search" class="form-control" placeholder="e.g. Spa, Shuttle, WiFi..." value="{{ filters.search }}">
+            </div>
+
+            <div class="form-group">
+                <label for="hotel_id">Hotel Property</label>
+                <select id="hotel_id" name="hotel_id" class="form-control">
+                    <option value="">All Hotels</option>
+                    {% for h in hotels %}
+                        <option value="{{ h.hotel_id }}" {% if filters.hotel_id|string == h.hotel_id|string %}selected{% endif %}>
+                            {{ h.hotel_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="sort_by">Sort By</label>
+                <select id="sort_by" name="sort_by" class="form-control">
+                    <option value="service_name" {% if filters.sort_by == 'service_name' %}selected{% endif %}>Service Name</option>
+                    <option value="price" {% if filters.sort_by == 'price' %}selected{% endif %}>Price</option>
+                    <option value="hotel" {% if filters.sort_by == 'hotel' %}selected{% endif %}>Hotel Name</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="order">Sort Order</label>
+                <select id="order" name="order" class="form-control">
+                    <option value="asc" {% if filters.order == 'asc' %}selected{% endif %}>Ascending</option>
+                    <option value="desc" {% if filters.order == 'desc' %}selected{% endif %}>Descending</option>
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary">Search</button>
+                <a href="{{ url_for('services.list_services') }}" class="btn btn-secondary">Reset</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Services Catalog Grid -->
+<div class="data-card">
+    <div class="data-card-header">
+        <div class="data-card-title">Services & Amenities Catalog ({{ services|length }} items)</div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Service Name</th>
+                    <th>Hotel Property</th>
+                    <th>Description</th>
+                    <th>Location</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in services %}
+                <tr>
+                    <td><strong>{{ s.service_name }}</strong></td>
+                    <td>
+                        <div><strong>{{ s.hotel_name }}</strong></div>
+                        <small>⭐ {{ s.star_rating }} / 5.0</small>
+                    </td>
+                    <td><p style="color: var(--text-secondary); max-width: 420px;">{{ s.description }}</p></td>
+                    <td>{{ s.location }}</td>
+                    <td>
+                        {% if s.price == 0 %}
+                            <span class="badge badge-green">Complimentary</span>
+                        {% else %}
+                            <strong>₹{{ "{:,.2f}".format(s.price) }}</strong>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🛎️</div>
+                            <div class="empty-state-title">No services found</div>
+                            <p>Try searching with another keyword.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

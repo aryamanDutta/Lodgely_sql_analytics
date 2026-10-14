@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Grand Luxe - Hotel Management ERP{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="brand-title">
+                <span>🏨</span>
+                <div>
+                    <div>Grand Luxe</div>
+                    <span class="brand-badge">CAM 5 MySQL ERP</span>
+                </div>
+            </div>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li class="menu-category">Main Dashboard</li>
+            <li class="{% if request.endpoint == 'dashboard.index' %}active{% endif %}">
+                <a href="{{ url_for('dashboard.index') }}">
+                    <span>📊</span>
+                    <span>Overview</span>
+                </a>
+            </li>
+
+            <li class="menu-category">Front Desk & Operations</li>
+            <li class="{% if request.blueprint == 'rooms' %}active{% endif %}">
+                <a href="{{ url_for('rooms.list_rooms') }}">
+                    <span>🛏️</span>
+                    <span>Rooms & Inventory</span>
+                </a>
+            </li>
+            <li class="{% if request.blueprint == 'customers' %}active{% endif %}">
+                <a href="{{ url_for('customers.list_customers') }}">
+                    <span>👥</span>
+                    <span>Customer Directory</span>
+                </a>
+            </li>
+            <li class="{% if request.blueprint == 'bookings' %}active{% endif %}">
+                <a href="{{ url_for('bookings.list_bookings') }}">
+                    <span>📅</span>
+                    <span>Reservations</span>
+                </a>
+            </li>
+            <li class="{% if request.blueprint == 'payments' %}active{% endif %}">
+                <a href="{{ url_for('payments.list_payments') }}">
+                    <span>💳</span>
+                    <span>Payments & Billing</span>
+                </a>
+            </li>
+
+            <li class="menu-category">Hotel Facilities</li>
+            <li class="{% if request.blueprint == 'restaurants' %}active{% endif %}">
+                <a href="{{ url_for('restaurants.list_restaurants_and_food') }}">
+                    <span>🍽️</span>
+                    <span>Dining & Menus</span>
+                </a>
+            </li>
+            <li class="{% if request.blueprint == 'services' %}active{% endif %}">
+                <a href="{{ url_for('services.list_services') }}">
+                    <span>🛎️</span>
+                    <span>Hotel Services</span>
+                </a>
+            </li>
+
+            <li class="menu-category">Staff & Maintenance</li>
+            <li class="{% if request.blueprint == 'employees' %}active{% endif %}">
+                <a href="{{ url_for('employees.list_employees') }}">
+                    <span>👔</span>
+                    <span>Staff Directory</span>
+                </a>
+            </li>
+            <li class="{% if request.blueprint == 'housekeeping' %}active{% endif %}">
+                <a href="{{ url_for('housekeeping.list_housekeeping') }}">
+                    <span>🧹</span>
+                    <span>Housekeeping</span>
+                </a>
+            </li>
+
+            <li class="menu-category">Business Intelligence</li>
+            <li class="{% if request.blueprint == 'analytics' %}active{% endif %}">
+                <a href="{{ url_for('analytics.index') }}">
+                    <span>📈</span>
+                    <span>SQL Analytics</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div>B.Tech CSE Project</div>
+            <div>DBMS / MySQL 8.0 & Flask</div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+        <header class="top-navbar">
+            <h1 class="top-nav-title">{% block page_heading %}Hotel Management Dashboard{% endblock %}</h1>
+            <div class="top-nav-meta">
+                <span class="badge badge-blue">MySQL 8.0 Connected</span>
+                <a href="{{ url_for('bookings.new_booking') }}" class="btn btn-primary">+ New Booking</a>
+            </div>
+        </header>
+
+        <main class="content-container">
+            <!-- Flash Message Alerts -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

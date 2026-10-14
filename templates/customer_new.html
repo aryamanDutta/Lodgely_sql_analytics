@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}New Guest Profile - Grand Luxe ERP{% endblock %}
+{% block page_heading %}Register New Guest{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('customers.list_customers') }}" class="btn btn-secondary">&larr; Back to Customer Directory</a>
+</div>
+
+<div class="data-card" style="max-width: 700px; margin: 0 auto; padding: 28px;">
+    <div style="margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+        <h2 style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary);">New Guest Profile</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem;">Enter complete guest contact information. Email address must be unique.</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('customers.new_customer') }}">
+        <div style="display: flex; flex-direction: column; gap: 18px;">
+            <div class="form-group">
+                <label for="customer_name">Full Name *</label>
+                <input type="text" id="customer_name" name="customer_name" class="form-control" placeholder="e.g. Rahul Sharma" required value="{{ form_data.customer_name }}">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="rahul@example.com" required value="{{ form_data.email }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Contact *</label>
+                    <input type="text" id="phone" name="phone" class="form-control" placeholder="+91 98765 43210" required value="{{ form_data.phone }}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="address">Address / City *</label>
+                <input type="text" id="address" name="address" class="form-control" placeholder="e.g. 45 M.G. Road, Bengaluru" required value="{{ form_data.address }}">
+            </div>
+
+            <div style="margin-top: 12px; display: flex; gap: 12px; justify-content: flex-end;">
+                <a href="{{ url_for('customers.list_customers') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Save Guest Profile</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

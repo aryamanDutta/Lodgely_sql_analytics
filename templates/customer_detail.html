@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Guest Profile - {{ customer.customer_name }}{% endblock %}
+{% block page_heading %}Guest Profile & Booking History{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+    <a href="{{ url_for('customers.list_customers') }}" class="btn btn-secondary">&larr; Back to Customer Directory</a>
+    <div style="display: flex; gap: 8px;">
+        <a href="{{ url_for('customers.edit_customer', customer_id=customer.customer_id) }}" class="btn btn-secondary">
+            ✏️ Edit Profile
+        </a>
+        <form method="POST" action="{{ url_for('customers.delete_customer', customer_id=customer.customer_id) }}" style="display: inline;">
+            <button type="submit" class="btn btn-secondary" style="color: var(--accent-danger);" onclick="return confirm('Are you sure you want to delete this customer record?');">
+                🗑️ Delete Profile
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Customer Profile Card -->
+<div class="data-card" style="padding: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px;">
+        <div>
+            <h2 style="font-size: 1.4rem; color: var(--text-primary); margin-bottom: 4px;">{{ customer.customer_name }}</h2>
+            <div style="color: var(--text-muted); font-size: 0.85rem;">Customer Record #{{ customer.customer_id }} • Registered on {{ customer.created_at.strftime('%d %b %Y') if customer.created_at else 'Active' }}</div>
+        </div>
+        <span class="badge badge-green">Verified Guest</span>
+    </div>
+
+    <div class="details-grid">
+        <div class="detail-item">
+            <span class="detail-label">Email Address</span>
+            <span class="detail-value">{{ customer.email }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Phone Contact</span>
+            <span class="detail-value">{{ customer.phone }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Billing Address</span>
+            <span class="detail-value">{{ customer.address }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Reservation History Table -->
+<div class="data-card">
+    <div class="data-card-header">
+        <div class="data-card-title">Stay & Reservation History ({{ bookings|length }} records)</div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Hotel Property</th>
+                    <th>Room</th>
+                    <th>Category</th>
+                    <th>Stay Dates</th>
+                    <th>Guests</th>
+                    <th>Status</th>
+                    <th>Booking Total</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bookings %}
+                <tr>
+                    <td><strong>#{{ b.booking_id }}</strong></td>
+                    <td>{{ b.hotel_name }}</td>
+                    <td><span class="badge badge-gray">{{ b.room_number }}</span></td>
+                    <td>{{ b.room_type }}</td>
+                    <td>{{ b.check_in_date }} &rarr; {{ b.check_out_date }}</td>
+                    <td>{{ b.number_of_guests }} Guest(s)</td>
+                    <td>
+                        {% if b.booking_status == 'Confirmed' %}
+                            <span class="badge badge-green">Confirmed</span>
+                        {% elif b.booking_status == 'Completed' %}
+                            <span class="badge badge-blue">Completed</span>
+                        {% elif b.booking_status == 'Pending' %}
+                            <span class="badge badge-yellow">Pending</span>
+                        {% else %}
+                            <span class="badge badge-red">{{ b.booking_status }}</span>
+                        {% endif %}
+                    </td>
+                    <td><strong>₹{{ "{:,.2f}".format(b.total_amount) }}</strong></td>
+                    <td>
+                        <a href="{{ url_for('bookings.booking_detail', booking_id=b.booking_id) }}" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.78rem;">Details</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="9">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📅</div>
+                            <div class="empty-state-title">No reservations found for this customer</div>
+                            <p>This customer does not have any active or past booking records.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

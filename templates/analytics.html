@@ -1,0 +1,403 @@
+{% extends "base.html" %}
+
+{% block title %}SQL Analytics - Grand Luxe ERP{% endblock %}
+{% block page_heading %}Business Intelligence & Advanced SQL Analytics{% endblock %}
+
+{% block content %}
+<!-- Section: Occupancy Rate & Overall Average KPIs -->
+<div class="stats-grid">
+    <div class="stat-card" style="border-left: 4px solid var(--accent-primary);">
+        <div class="stat-header">Current Room Occupancy</div>
+        <div class="stat-value" style="color: var(--accent-primary);">{{ occupancy_data.occupancy_percentage or 0 }}%</div>
+        <div class="stat-footer">{{ occupancy_data.occupied_rooms or 0 }} Occupied of {{ occupancy_data.total_rooms or 0 }} Total Inventory</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-header">Average Booking Value</div>
+        <div class="stat-value">₹{{ "{:,.2f}".format(avg_overall.avg_booking_value or 0) }}</div>
+        <div class="stat-footer">Range: ₹{{ "{:,.0f}".format(avg_overall.min_booking_value or 0) }} — ₹{{ "{:,.0f}".format(avg_overall.max_booking_value or 0) }}</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-header">Available vs Maintenance</div>
+        <div class="stat-value">{{ occupancy_data.available_rooms or 0 }} / {{ occupancy_data.maintenance_rooms or 0 }}</div>
+        <div class="stat-footer">Ready for check-in vs Under repair</div>
+    </div>
+</div>
+
+<!-- Charts Row: Monthly Revenue & Property Bookings -->
+<div class="charts-grid">
+    <div class="chart-card">
+        <h3>Query 7: Monthly Collected Revenue (Completed Invoices)</h3>
+        <div class="chart-wrapper">
+            <canvas id="monthlyRevenueChart"
+                    data-labels='{{ chart_month_labels|safe }}'
+                    data-amounts='{{ chart_month_revenue|safe }}'></canvas>
+        </div>
+    </div>
+
+    <div class="chart-card">
+        <h3>Query 6: Bookings Distributed by Hotel Property</h3>
+        <div class="chart-wrapper">
+            <canvas id="hotelBookingsChart"
+                    data-labels='{{ chart_hotel_names|safe }}'
+                    data-counts='{{ chart_hotel_counts|safe }}'></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Grid of SQL Analytical Tables -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 24px; margin-bottom: 28px;">
+
+    <!-- 1. Total Bookings by Status -->
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">1. Total Bookings by Status</div>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Booking Status</th>
+                        <th>Bookings Count</th>
+                        <th>Total Reservation Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in bookings_by_status %}
+                    <tr>
+                        <td><strong>{{ row.booking_status }}</strong></td>
+                        <td>{{ row.total_bookings }} booking(s)</td>
+                        <td><strong>₹{{ "{:,.2f}".format(row.total_value) }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 2. Rooms by Room Type -->
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">2. Room Capacity & Rates by Category</div>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Rooms</th>
+                        <th>Price Range (Min — Max)</th>
+                        <th>Avg Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rooms_by_type %}
+                    <tr>
+                        <td><strong>{{ row.room_type }}</strong></td>
+                        <td>{{ row.room_count }} room(s)</td>
+                        <td>₹{{ "{:,.0f}".format(row.min_price) }} — ₹{{ "{:,.0f}".format(row.max_price) }}</td>
+                        <td><strong>₹{{ "{:,.2f}".format(row.avg_price) }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. Available Rooms by Hotel -->
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">3. Room Status Breakdown by Hotel Property</div>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Hotel Property</th>
+                        <th>Total</th>
+                        <th>Available</th>
+                        <th>Occupied</th>
+                        <th>Maintenance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in available_rooms_by_hotel %}
+                    <tr>
+                        <td><strong>{{ row.hotel_name }}</strong></td>
+                        <td>{{ row.total_rooms }}</td>
+                        <td><span class="badge badge-green">{{ row.available_rooms }}</span></td>
+                        <td><span class="badge badge-blue">{{ row.occupied_rooms }}</span></td>
+                        <td><span class="badge badge-yellow">{{ row.maintenance_rooms }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 4. Payments by Payment Method -->
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">4. Payments by Payment Channel</div>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Payment Method</th>
+                        <th>Transactions</th>
+                        <th>Total Transacted</th>
+                        <th>Avg Ticket Size</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in payments_by_method %}
+                    <tr>
+                        <td><strong>{{ row.payment_method }}</strong></td>
+                        <td>{{ row.transaction_count }}</td>
+                        <td><strong>₹{{ "{:,.2f}".format(row.total_amount) }}</strong></td>
+                        <td>₹{{ "{:,.2f}".format(row.avg_amount) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 5. Payments by Status -->
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">5. Payments Grouped by Status</div>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Transaction Status</th>
+                        <th>Count</th>
+                        <th>Total Volume</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in payments_by_status %}
+                    <tr>
+                        <td>
+                            {% if row.payment_status == 'Completed' %}
+                                <span class="badge badge-green">Completed</span>
+                            {% elif row.payment_status == 'Pending' %}
+                                <span class="badge badge-yellow">Pending</span>
+                            {% elif row.payment_status == 'Failed' %}
+                                <span class="badge badge-red">Failed</span>
+                            {% else %}
+                                <span class="badge badge-blue">{{ row.payment_status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ row.transaction_count }} record(s)</td>
+                        <td><strong>₹{{ "{:,.2f}".format(row.total_amount) }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 8. Most Frequently Booked Rooms -->
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">8. Top 5 Most Frequently Booked Rooms</div>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Room</th>
+                        <th>Property</th>
+                        <th>Category</th>
+                        <th>Total Bookings</th>
+                        <th>Revenue Generated</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in frequent_rooms %}
+                    <tr>
+                        <td><strong>Room {{ row.room_number }}</strong></td>
+                        <td>{{ row.hotel_name }}</td>
+                        <td>{{ row.room_type }}</td>
+                        <td><span class="badge badge-blue">{{ row.total_bookings }} booking(s)</span></td>
+                        <td><strong>₹{{ "{:,.2f}".format(row.total_revenue_generated) }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 9. Top Customers by Booking Volume -->
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">9. Top 5 Customers by Booking Volume</div>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Guest Name</th>
+                        <th>Email Contact</th>
+                        <th>Total Bookings</th>
+                        <th>Total Spend</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in top_customers %}
+                    <tr>
+                        <td><strong>{{ row.customer_name }}</strong></td>
+                        <td>{{ row.email }}</td>
+                        <td><span class="badge badge-green">{{ row.bookings_count }} reservation(s)</span></td>
+                        <td><strong>₹{{ "{:,.2f}".format(row.total_spent) }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 10. Average Booking Value by Room Type -->
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">10. Average Reservation Value by Room Category</div>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Room Category</th>
+                        <th>Total Bookings</th>
+                        <th>Average Booking Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in avg_by_type %}
+                    <tr>
+                        <td><strong>{{ row.room_type }}</strong></td>
+                        <td>{{ row.bookings_count }}</td>
+                        <td><strong>₹{{ "{:,.2f}".format(row.avg_booking_value) }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 12. Restaurant Menu Items by Category -->
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">12. Restaurant Menu Offerings by Category</div>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Dish Count</th>
+                        <th>Price Range</th>
+                        <th>Avg Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in food_by_category %}
+                    <tr>
+                        <td><strong>{{ row.category }}</strong></td>
+                        <td>{{ row.item_count }} item(s)</td>
+                        <td>₹{{ "{:,.0f}".format(row.min_price) }} — ₹{{ "{:,.0f}".format(row.max_price) }}</td>
+                        <td><strong>₹{{ "{:,.2f}".format(row.avg_price) }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 13. Outstanding Reservation Balances (Unsettled Invoices) -->
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">13. Unsettled Reservation Balances (High-Priority Receivables)</div>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Booking</th>
+                        <th>Guest & Property</th>
+                        <th>Invoiced</th>
+                        <th>Paid</th>
+                        <th>Balance Due</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in outstanding_balances %}
+                    <tr>
+                        <td><strong>#{{ row.booking_id }}</strong></td>
+                        <td>
+                            <div>{{ row.customer_name }}</div>
+                            <small style="color: var(--text-muted);">{{ row.hotel_name }} · Room {{ row.room_number }}</small>
+                        </td>
+                        <td>₹{{ "{:,.2f}".format(row.total_amount) }}</td>
+                        <td>₹{{ "{:,.2f}".format(row.total_paid) }}</td>
+                        <td><strong style="color: var(--accent-danger);">₹{{ "{:,.2f}".format(row.balance_due) }}</strong></td>
+                        <td><span class="badge badge-yellow">{{ row.booking_status }}</span></td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 16px;">
+                            All active reservations are fully settled!
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 14. Housekeeping Workload Distribution -->
+    <div class="data-card">
+        <div class="data-card-header">
+            <div class="data-card-title">14. Housekeeping Workload & Room Cleaning Performance</div>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Housekeeper</th>
+                        <th>Hotel Property</th>
+                        <th>Total Assigned</th>
+                        <th>Cleaned</th>
+                        <th>In Progress</th>
+                        <th>Dirty</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in housekeeping_workload %}
+                    <tr>
+                        <td><strong>{{ row.employee_name }}</strong></td>
+                        <td>{{ row.hotel_name }}</td>
+                        <td><strong>{{ row.total_assignments }}</strong> room(s)</td>
+                        <td><span class="badge badge-green">{{ row.clean_rooms }}</span></td>
+                        <td><span class="badge badge-yellow">{{ row.in_progress_rooms }}</span></td>
+                        <td><span class="badge badge-red">{{ row.dirty_rooms }}</span></td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 16px;">
+                            No housekeeping task records available.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

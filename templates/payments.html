@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Payments & Billing - Grand Luxe ERP{% endblock %}
+{% block page_heading %}Financial Transactions & Invoicing Audit{% endblock %}
+
+{% block content %}
+<!-- Financial Summary Cards -->
+<div class="stats-grid">
+    <div class="stat-card" style="border-left: 4px solid var(--accent-success);">
+        <div class="stat-header">Collected Revenue</div>
+        <div class="stat-value" style="color: var(--accent-success);">₹{{ "{:,.2f}".format(summary.total_collected or 0) }}</div>
+        <div class="stat-footer">Completed payment receipts</div>
+    </div>
+
+    <div class="stat-card" style="border-left: 4px solid var(--accent-warning);">
+        <div class="stat-header">Pending Settlements</div>
+        <div class="stat-value" style="color: var(--accent-warning);">₹{{ "{:,.2f}".format(summary.total_pending or 0) }}</div>
+        <div class="stat-footer">Awaiting guest or gateway clearance</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-header">Refunds Processed</div>
+        <div class="stat-value">₹{{ "{:,.2f}".format(summary.total_refunded or 0) }}</div>
+        <div class="stat-footer">Cancelled reservations</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-header">Total Transactions</div>
+        <div class="stat-value">{{ summary.total_transactions or 0 }}</div>
+        <div class="stat-footer">Total recorded billing entries</div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="filter-card">
+    <form method="GET" action="{{ url_for('payments.list_payments') }}">
+        <div class="filter-grid">
+            <div class="form-group">
+                <label for="booking_id">Booking ID</label>
+                <input type="number" id="booking_id" name="booking_id" class="form-control" placeholder="e.g. 1, 5" value="{{ filters.booking_id }}">
+            </div>
+
+            <div class="form-group">
+                <label for="payment_status">Payment Status</label>
+                <select id="payment_status" name="payment_status" class="form-control">
+                    <option value="">All Statuses</option>
+                    {% for st in payment_statuses %}
+                        <option value="{{ st }}" {% if filters.payment_status == st %}selected{% endif %}>{{ st }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="payment_method">Payment Method</label>
+                <select id="payment_method" name="payment_method" class="form-control">
+                    <option value="">All Methods</option>
+                    {% for m in payment_methods %}
+                        <option value="{{ m }}" {% if filters.payment_method == m %}selected{% endif %}>{{ m }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="date_from">Date From</label>
+                <input type="date" id="date_from" name="date_from" class="form-control" value="{{ filters.date_from }}">
+            </div>
+
+            <div class="form-group">
+                <label for="date_to">Date To</label>
+                <input type="date" id="date_to" name="date_to" class="form-control" value="{{ filters.date_to }}">
+            </div>
+
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="{{ url_for('payments.list_payments') }}" class="btn btn-secondary">Reset</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Transaction Table -->
+<div class="data-card">
+    <div class="data-card-header">
+        <div class="data-card-title">Payment Ledger ({{ payments|length }} records)</div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Payment ID</th>
+                    <th>Booking Ref</th>
+                    <th>Guest Name</th>
+                    <th>Hotel Property</th>
+                    <th>Transaction Timestamp</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in payments %}
+                <tr>
+                    <td><strong>#{{ p.payment_id }}</strong></td>
+                    <td><a href="{{ url_for('bookings.booking_detail', booking_id=p.booking_id) }}">Booking #{{ p.booking_id }}</a></td>
+                    <td><strong>{{ p.customer_name }}</strong></td>
+                    <td>{{ p.hotel_name }}</td>
+                    <td>{{ p.payment_date }}</td>
+                    <td><span class="badge badge-gray">{{ p.payment_method }}</span></td>
+                    <td>
+                        {% if p.payment_status == 'Completed' %}
+                            <span class="badge badge-green">Completed</span>
+                        {% elif p.payment_status == 'Pending' %}
+                            <span class="badge badge-yellow">Pending</span>
+                        {% elif p.payment_status == 'Failed' %}
+                            <span class="badge badge-red">Failed</span>
+                        {% else %}
+                            <span class="badge badge-blue">{{ p.payment_status }}</span>
+                        {% endif %}
+                    </td>
+                    <td><strong>₹{{ "{:,.2f}".format(p.amount) }}</strong></td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">💳</div>
+                            <div class="empty-state-title">No payment records found</div>
+                            <p>Try clearing your filter parameters.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Grouped Summary by Payment Method -->
+<div class="data-card">
+    <div class="data-card-header">
+        <div class="data-card-title">Summary by Payment Gateway & Channel (MySQL GROUP BY)</div>
+    </div>
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Payment Channel</th>
+                    <th>Transactions Count</th>
+                    <th>Total Transacted Volume</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in method_breakdown %}
+                <tr>
+                    <td><strong>{{ m.payment_method }}</strong></td>
+                    <td>{{ m.transaction_count }} transaction(s)</td>
+                    <td><strong>₹{{ "{:,.2f}".format(m.total_amount) }}</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

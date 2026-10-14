@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Record Payment — Booking #{{ booking.booking_id }} - Grand Luxe ERP{% endblock %}
+{% block page_heading %}Record Guest Payment{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('bookings.booking_detail', booking_id=booking.booking_id) }}" class="btn btn-secondary">
+        &larr; Back to Booking #{{ booking.booking_id }}
+    </a>
+</div>
+
+<!-- Booking Context Banner -->
+<div style="background-color: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-sm);
+            padding: 14px 20px; margin-bottom: 24px; display: flex; justify-content: space-between;
+            flex-wrap: wrap; gap: 12px; align-items: center;">
+    <div>
+        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600;">
+            Reservation Reference
+        </div>
+        <div style="font-size: 1rem; font-weight: 700; color: var(--text-primary);">
+            Booking #{{ booking.booking_id }} — {{ booking.customer_name }}
+        </div>
+        <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">
+            {{ booking.hotel_name }} · Room {{ booking.room_number }} ({{ booking.room_type }})
+        </div>
+    </div>
+    <div style="display: flex; gap: 24px; flex-wrap: wrap;">
+        <div style="text-align: right;">
+            <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Total Invoiced</div>
+            <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">₹{{ "{:,.2f}".format(booking.total_amount) }}</div>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Already Paid</div>
+            <div style="font-size: 1.1rem; font-weight: 700; color: var(--accent-success);">₹{{ "{:,.2f}".format(total_paid) }}</div>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Balance Due</div>
+            <div style="font-size: 1.15rem; font-weight: 700; color: var(--accent-danger);">₹{{ "{:,.2f}".format(balance_due) }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Form -->
+<div class="data-card" style="max-width: 680px; margin: 0 auto; padding: 28px;">
+    <div style="margin-bottom: 22px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+        <h2 style="font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">New Payment Entry</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem;">
+            Maximum payable amount is <strong>₹{{ "{:,.2f}".format(balance_due) }}</strong>.
+            Overpayments are rejected by the server.
+        </p>
+    </div>
+
+    <form method="POST" action="{{ url_for('payments.new_payment') }}">
+        <input type="hidden" name="booking_id" value="{{ booking.booking_id }}">
+
+        <div style="display: flex; flex-direction: column; gap: 18px;">
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label for="amount">Payment Amount (₹) *</label>
+                    <input type="number" id="amount" name="amount" class="form-control"
+                           placeholder="{{ "{:.2f}".format(balance_due) }}"
+                           min="0.01" max="{{ "{:.2f}".format(balance_due) }}"
+                           step="0.01" required
+                           value="{{ form_data.get('amount', '') }}">
+                    <small style="color: var(--text-muted);">Max: ₹{{ "{:,.2f}".format(balance_due) }}</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="payment_date">Payment Date *</label>
+                    <input type="date" id="payment_date" name="payment_date" class="form-control"
+                           value="{{ form_data.get('payment_date', '') }}"
+                           max="{{ now if now else '' }}">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label for="payment_method">Payment Method *</label>
+                    <select id="payment_method" name="payment_method" class="form-control" required>
+                        <option value="">— Select Method —</option>
+                        {% for method in payment_methods %}
+                            <option value="{{ method }}"
+                                {% if form_data.get('payment_method') == method %}selected{% endif %}>
+                                {{ method }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="payment_status">Payment Status *</label>
+                    <select id="payment_status" name="payment_status" class="form-control" required>
+                        {% for status in payment_statuses %}
+                            <option value="{{ status }}"
+                                {% if form_data.get('payment_status', 'Completed') == status %}selected{% endif %}>
+                                {{ status }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <small style="color: var(--text-muted);">
+                        Only <em>Completed</em> payments reduce the outstanding balance.
+                    </small>
+                </div>
+            </div>
+
+            <!-- Quick-fill buttons -->
+            <div style="padding: 12px 16px; background-color: var(--bg-main); border: 1px solid var(--border-color);
+                        border-radius: var(--radius-sm); font-size: 0.85rem;">
+                <span style="color: var(--text-muted); font-weight: 600; margin-right: 8px;">Quick fill:</span>
+                <button type="button" class="btn btn-secondary"
+                        style="padding: 3px 12px; font-size: 0.8rem;"
+                        onclick="document.getElementById('amount').value = '{{ "{:.2f}".format(balance_due) }}'">
+                    Full Balance ₹{{ "{:,.2f}".format(balance_due) }}
+                </button>
+            </div>
+
+            <div style="margin-top: 12px; display: flex; gap: 12px; justify-content: flex-end;">
+                <a href="{{ url_for('bookings.booking_detail', booking_id=booking.booking_id) }}"
+                   class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">
+                    💳 Record Payment
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

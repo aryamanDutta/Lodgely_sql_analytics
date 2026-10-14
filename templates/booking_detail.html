@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}Reservation #{{ booking.booking_id }} - Grand Luxe ERP{% endblock %}
+{% block page_heading %}Reservation Record #{{ booking.booking_id }}{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+    <a href="{{ url_for('bookings.list_bookings') }}" class="btn btn-secondary">&larr; Back to Reservations List</a>
+    
+    <!-- Action Controls -->
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        {% if booking.booking_status not in ('Completed', 'Cancelled') %}
+            {% if booking.room_status != 'Occupied' %}
+                <form method="POST" action="{{ url_for('bookings.check_in', booking_id=booking.booking_id) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-success" onclick="return confirm('Confirm guest check-in for Room {{ booking.room_number }}?');">
+                        🔑 Check In Guest
+                    </button>
+                </form>
+            {% else %}
+                <form method="POST" action="{{ url_for('bookings.check_out', booking_id=booking.booking_id) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-primary" onclick="return confirm('Complete checkout for Room {{ booking.room_number }}?');">
+                        📤 Check Out Guest
+                    </button>
+                </form>
+            {% endif %}
+
+            <a href="{{ url_for('bookings.edit_booking', booking_id=booking.booking_id) }}" class="btn btn-secondary">
+                ✏️ Edit Booking
+            </a>
+
+            <form method="POST" action="{{ url_for('bookings.cancel_booking', booking_id=booking.booking_id) }}" style="display: inline;">
+                <button type="submit" class="btn btn-secondary" style="color: var(--accent-danger);" onclick="return confirm('Are you sure you want to cancel this reservation?');">
+                    ✕ Cancel Booking
+                </button>
+            </form>
+        {% endif %}
+
+        {% if booking.booking_status != 'Cancelled' and financials.balance_due > 0 %}
+            <a href="{{ url_for('payments.new_payment', booking_id=booking.booking_id) }}" class="btn btn-primary">
+                💳 Record Payment
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Booking Status & Overview Card -->
+<div class="data-card" style="padding: 24px; margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+        <div>
+            <h2 style="font-size: 1.3rem; color: var(--text-primary); margin-bottom: 4px;">
+                Booking #{{ booking.booking_id }}
+            </h2>
+            <div style="color: var(--text-muted); font-size: 0.85rem;">
+                Created: {{ booking.created_at.strftime('%d %b %Y, %I:%M %p') if booking.created_at else 'Recorded' }}
+            </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            {% if booking.booking_status == 'Confirmed' %}
+                <span class="badge badge-green" style="font-size: 0.85rem; padding: 6px 14px;">Confirmed</span>
+            {% elif booking.booking_status == 'Completed' %}
+                <span class="badge badge-blue" style="font-size: 0.85rem; padding: 6px 14px;">Completed</span>
+            {% elif booking.booking_status == 'Pending' %}
+                <span class="badge badge-yellow" style="font-size: 0.85rem; padding: 6px 14px;">Pending</span>
+            {% else %}
+                <span class="badge badge-red" style="font-size: 0.85rem; padding: 6px 14px;">{{ booking.booking_status }}</span>
+            {% endif %}
+
+            {% if financials.is_fully_paid %}
+                <span class="badge badge-green" style="font-size: 0.85rem; padding: 6px 14px;">Paid in Full</span>
+            {% elif financials.is_partially_paid %}
+                <span class="badge badge-yellow" style="font-size: 0.85rem; padding: 6px 14px;">Partially Paid</span>
+            {% else %}
+                <span class="badge badge-red" style="font-size: 0.85rem; padding: 6px 14px;">Payment Unsettled</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="details-grid">
+        <div class="detail-item">
+            <span class="detail-label">Check-In Date</span>
+            <span class="detail-value">{{ booking.check_in_date }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Check-Out Date</span>
+            <span class="detail-value">{{ booking.check_out_date }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Number of Guests</span>
+            <span class="detail-value">{{ booking.number_of_guests }} Person(s)</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Total Reservation Amount</span>
+            <span class="detail-value" style="color: var(--accent-primary); font-size: 1.15rem;">₹{{ "{:,.2f}".format(booking.total_amount) }}</span>
+        </div>
+    </div>
+
+    <!-- Financial Accounting Bar -->
+    <div style="background-color: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 14px 18px; margin-top: 18px; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Total Invoiced</span>
+            <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">₹{{ "{:,.2f}".format(booking.total_amount) }}</div>
+        </div>
+        <div>
+            <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Total Paid</span>
+            <div style="font-size: 1.1rem; font-weight: 700; color: var(--accent-success);">₹{{ "{:,.2f}".format(financials.total_paid) }}</div>
+        </div>
+        <div>
+            <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Remaining Balance</span>
+            <div style="font-size: 1.1rem; font-weight: 700; color: {% if financials.balance_due > 0 %}var(--accent-danger){% else %}var(--accent-success){% endif %};">
+                ₹{{ "{:,.2f}".format(financials.balance_due) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="charts-grid" style="margin-bottom: 24px;">
+    <!-- Guest Info Card -->
+    <div class="chart-card">
+        <h3>Guest Information</h3>
+        <div class="details-grid" style="grid-template-columns: 1fr; gap: 12px;">
+            <div class="detail-item">
+                <span class="detail-label">Guest Name</span>
+                <span class="detail-value"><a href="{{ url_for('customers.customer_detail', customer_id=booking.customer_id) }}">{{ booking.customer_name }}</a></span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Email</span>
+                <span class="detail-value">{{ booking.customer_email }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Phone</span>
+                <span class="detail-value">{{ booking.customer_phone }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Address</span>
+                <span class="detail-value">{{ booking.customer_address }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Room & Property Info Card -->
+    <div class="chart-card">
+        <h3>Room & Property Details</h3>
+        <div class="details-grid" style="grid-template-columns: 1fr; gap: 12px;">
+            <div class="detail-item">
+                <span class="detail-label">Hotel Property</span>
+                <span class="detail-value">{{ booking.hotel_name }} (⭐ {{ booking.star_rating }})</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Property Location</span>
+                <span class="detail-value">{{ booking.hotel_location }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Room Number & Type</span>
+                <span class="detail-value">
+                    Room {{ booking.room_number }} — {{ booking.room_type }}
+                    {% if booking.room_status == 'Occupied' %}
+                        <span class="badge badge-blue" style="margin-left: 6px;">Occupied</span>
+                    {% elif booking.room_status == 'Available' %}
+                        <span class="badge badge-green" style="margin-left: 6px;">Available</span>
+                    {% else %}
+                        <span class="badge badge-yellow" style="margin-left: 6px;">Maintenance</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Rate per Night</span>
+                <span class="detail-value">₹{{ "{:,.2f}".format(booking.price_per_night) }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Associated Payments Card -->
+<div class="data-card">
+    <div class="data-card-header">
+        <div class="data-card-title">Associated Payment Transactions ({{ payments|length }} records)</div>
+        {% if booking.booking_status != 'Cancelled' and financials.balance_due > 0 %}
+            <a href="{{ url_for('payments.new_payment', booking_id=booking.booking_id) }}" class="btn btn-primary" style="font-size: 0.8rem; padding: 4px 12px;">+ Record Payment</a>
+        {% endif %}
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Payment ID</th>
+                    <th>Transaction Timestamp</th>
+                    <th>Amount</th>
+                    <th>Payment Method</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in payments %}
+                <tr>
+                    <td><strong>#{{ p.payment_id }}</strong></td>
+                    <td>{{ p.payment_date }}</td>
+                    <td><strong>₹{{ "{:,.2f}".format(p.amount) }}</strong></td>
+                    <td><span class="badge badge-gray">{{ p.payment_method }}</span></td>
+                    <td>
+                        {% if p.payment_status == 'Completed' %}
+                            <span class="badge badge-green">Completed</span>
+                        {% elif p.payment_status == 'Pending' %}
+                            <span class="badge badge-yellow">Pending</span>
+                        {% elif p.payment_status == 'Failed' %}
+                            <span class="badge badge-red">Failed</span>
+                        {% else %}
+                            <span class="badge badge-blue">{{ p.payment_status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">💳</div>
+                            <div class="empty-state-title">No payment records found for this reservation</div>
+                            <p>An invoice may still be pending settlement.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

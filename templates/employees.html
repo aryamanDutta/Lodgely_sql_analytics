@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Staff Directory - Grand Luxe ERP{% endblock %}
+{% block page_heading %}Staff & Human Resources Directory{% endblock %}
+
+{% block content %}
+<!-- Staff Metrics -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-header">Total Staff Members</div>
+        <div class="stat-value">{{ stats.total_employees or 0 }}</div>
+        <div class="stat-footer">Across all hotel locations</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">Average Staff Salary</div>
+        <div class="stat-value">₹{{ "{:,.2f}".format(stats.avg_salary or 0) }}</div>
+        <div class="stat-footer">Monthly payroll average</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">Distinct Job Roles</div>
+        <div class="stat-value">{{ stats.total_roles or 0 }}</div>
+        <div class="stat-footer">Management, Culinary & Housekeeping</div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="filter-card">
+    <form method="GET" action="{{ url_for('employees.list_employees') }}">
+        <div class="filter-grid">
+            <div class="form-group">
+                <label for="hotel_id">Hotel Property</label>
+                <select id="hotel_id" name="hotel_id" class="form-control">
+                    <option value="">All Hotels</option>
+                    {% for h in hotels %}
+                        <option value="{{ h.hotel_id }}" {% if filters.hotel_id|string == h.hotel_id|string %}selected{% endif %}>
+                            {{ h.hotel_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="designation">Designation / Role</label>
+                <select id="designation" name="designation" class="form-control">
+                    <option value="">All Designations</option>
+                    {% for d in designations %}
+                        <option value="{{ d.designation }}" {% if filters.designation == d.designation %}selected{% endif %}>
+                            {{ d.designation }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="{{ url_for('employees.list_employees') }}" class="btn btn-secondary">Reset</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Employee Table -->
+<div class="data-card">
+    <div class="data-card-header">
+        <div class="data-card-title">Staff Members ({{ employees|length }} found)</div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Staff ID</th>
+                    <th>Full Name</th>
+                    <th>Hotel Property</th>
+                    <th>Designation</th>
+                    <th>Monthly Salary</th>
+                    <th>Phone Contact</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in employees %}
+                <tr>
+                    <td><strong>#{{ e.employee_id }}</strong></td>
+                    <td><strong>{{ e.employee_name }}</strong></td>
+                    <td>
+                        <div><strong>{{ e.hotel_name }}</strong></div>
+                        <small style="color: var(--text-muted);">{{ e.location }}</small>
+                    </td>
+                    <td><span class="badge badge-gray">{{ e.designation }}</span></td>
+                    <td><strong>₹{{ "{:,.2f}".format(e.salary) }}</strong></td>
+                    <td>{{ e.phone }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">👔</div>
+                            <div class="empty-state-title">No employees match criteria</div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

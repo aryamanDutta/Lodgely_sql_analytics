@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Room {{ room.room_number }} - Grand Luxe ERP{% endblock %}
+{% block page_heading %}Edit Room Details{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px; display: flex; gap: 10px;">
+    <a href="{{ url_for('rooms.list_rooms', hotel_id=room.hotel_id) }}" class="btn btn-secondary">&larr; Back to Room Inventory</a>
+</div>
+
+<div class="data-card" style="max-width: 720px; margin: 0 auto; padding: 28px;">
+    <div style="margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+        <h2 style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary);">
+            Edit Room — {{ room.hotel_name }}
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem;">
+            Room ID #{{ room.room_id }} · Hotel assignment cannot be changed here.
+            To transfer a room, delete and re-create it.
+        </p>
+    </div>
+
+    <!-- Read-only hotel context banner -->
+    <div style="background-color: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-sm);
+                padding: 10px 16px; margin-bottom: 20px; font-size: 0.85rem; color: var(--text-muted);">
+        🏨 <strong style="color: var(--text-primary);">{{ room.hotel_name }}</strong> — Hotel property (read-only)
+    </div>
+
+    <form method="POST" action="{{ url_for('rooms.edit_room', room_id=room.room_id) }}">
+        <div style="display: flex; flex-direction: column; gap: 18px;">
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label for="room_number">Room Number *</label>
+                    <input type="text" id="room_number" name="room_number" class="form-control"
+                           placeholder="e.g. 101, G-202" required
+                           value="{{ form_data.get('room_number', room.room_number) if form_data else room.room_number }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="room_type">Room Category *</label>
+                    <select id="room_type" name="room_type" class="form-control" required>
+                        {% for rt in room_types %}
+                            <option value="{{ rt }}"
+                                {% set current = form_data.get('room_type', room.room_type) if form_data else room.room_type %}
+                                {% if current == rt %}selected{% endif %}>
+                                {{ rt }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label for="price_per_night">Price per Night (₹) *</label>
+                    <input type="number" id="price_per_night" name="price_per_night" class="form-control"
+                           placeholder="e.g. 3500" min="1" step="0.01" required
+                           value="{{ form_data.get('price_per_night', room.price_per_night) if form_data else room.price_per_night }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="room_status">Room Status *</label>
+                    <select id="room_status" name="room_status" class="form-control" required>
+                        {% for rs in room_statuses %}
+                            <option value="{{ rs }}"
+                                {% set current_status = form_data.get('room_status', room.room_status) if form_data else room.room_status %}
+                                {% if current_status == rs %}selected{% endif %}>
+                                {{ rs }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <small style="color: var(--text-muted);">
+                        Set to <em>Maintenance</em> to prevent new reservations without deleting the room.
+                    </small>
+                </div>
+            </div>
+
+            <div style="margin-top: 12px; display: flex; gap: 12px; justify-content: flex-end;">
+                <a href="{{ url_for('rooms.list_rooms', hotel_id=room.hotel_id) }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Save Changes</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

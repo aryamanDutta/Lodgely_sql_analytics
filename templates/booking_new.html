@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Create Reservation - Grand Luxe ERP{% endblock %}
+{% block page_heading %}New Room Reservation{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('bookings.list_bookings') }}" class="btn btn-secondary">&larr; Back to Reservations List</a>
+</div>
+
+<div class="data-card" style="max-width: 800px; margin: 0 auto; padding: 28px;">
+    <div style="margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+        <h2 style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary);">New Guest Reservation</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem;">Select guest profile, property room, and stay schedule. Automatic date-overlap prevention is enforced.</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('bookings.new_booking') }}">
+        <div style="display: flex; flex-direction: column; gap: 18px;">
+            <div class="form-group">
+                <label for="customer_id">Select Guest Profile *</label>
+                <select id="customer_id" name="customer_id" class="form-control" required>
+                    <option value="">-- Choose Guest --</option>
+                    {% for c in customers %}
+                        <option value="{{ c.customer_id }}" {% if form_data.customer_id|string == c.customer_id|string %}selected{% endif %}>
+                            {{ c.customer_name }} ({{ c.email }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="room_id">Select Room & Hotel *</label>
+                <select id="room_id" name="room_id" class="form-control" required>
+                    <option value="">-- Choose Available Room --</option>
+                    {% for r in rooms %}
+                        <option value="{{ r.room_id }}" {% if form_data.room_id|string == r.room_id|string %}selected{% endif %}>
+                            {{ r.hotel_name }} — Room {{ r.room_number }} ({{ r.room_type }} - ₹{{ "{:,.0f}".format(r.price_per_night) }}/night)
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label for="check_in_date">Check-In Date *</label>
+                    <input type="date" id="check_in_date" name="check_in_date" class="form-control" required value="{{ form_data.check_in_date }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="check_out_date">Check-Out Date *</label>
+                    <input type="date" id="check_out_date" name="check_out_date" class="form-control" required value="{{ form_data.check_out_date }}">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label for="number_of_guests">Number of Guests *</label>
+                    <input type="number" id="number_of_guests" name="number_of_guests" class="form-control" min="1" max="10" value="{{ form_data.number_of_guests or '1' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="booking_status">Initial Booking Status *</label>
+                    <select id="booking_status" name="booking_status" class="form-control" required>
+                        <option value="Confirmed" {% if form_data.booking_status == 'Confirmed' %}selected{% endif %}>Confirmed</option>
+                        <option value="Pending" {% if form_data.booking_status == 'Pending' %}selected{% endif %}>Pending</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="margin-top: 12px; display: flex; gap: 12px; justify-content: flex-end;">
+                <a href="{{ url_for('bookings.list_bookings') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Confirm & Book Reservation</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

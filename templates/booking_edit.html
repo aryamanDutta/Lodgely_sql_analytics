@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Reservation #{{ booking.booking_id }} - Grand Luxe ERP{% endblock %}
+{% block page_heading %}Modify Reservation #{{ booking.booking_id }}{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('bookings.booking_detail', booking_id=booking.booking_id) }}" class="btn btn-secondary">&larr; Back to Booking Details</a>
+</div>
+
+<div class="data-card" style="max-width: 800px; margin: 0 auto; padding: 28px;">
+    <div style="margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+        <h2 style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary);">Edit Reservation Details</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem;">
+            Guest: <strong>{{ customer.customer_name }}</strong> ({{ customer.email }})
+        </p>
+    </div>
+
+    <form method="POST" action="{{ url_for('bookings.edit_booking', booking_id=booking.booking_id) }}">
+        <div style="display: flex; flex-direction: column; gap: 18px;">
+            <div class="form-group">
+                <label for="room_id">Assigned Room & Property *</label>
+                <select id="room_id" name="room_id" class="form-control" required>
+                    {% for r in rooms %}
+                        <option value="{{ r.room_id }}" {% if booking.room_id|string == r.room_id|string %}selected{% endif %}>
+                            {{ r.hotel_name }} — Room {{ r.room_number }} ({{ r.room_type }} - ₹{{ "{:,.0f}".format(r.price_per_night) }}/night)
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label for="check_in_date">Check-In Date *</label>
+                    <input type="date" id="check_in_date" name="check_in_date" class="form-control" required value="{{ booking.check_in_date }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="check_out_date">Check-Out Date *</label>
+                    <input type="date" id="check_out_date" name="check_out_date" class="form-control" required value="{{ booking.check_out_date }}">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label for="number_of_guests">Number of Guests *</label>
+                    <input type="number" id="number_of_guests" name="number_of_guests" class="form-control" min="1" max="10" value="{{ booking.number_of_guests }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="booking_status">Booking Status *</label>
+                    <select id="booking_status" name="booking_status" class="form-control" required>
+                        <option value="Confirmed" {% if booking.booking_status == 'Confirmed' %}selected{% endif %}>Confirmed</option>
+                        <option value="Pending" {% if booking.booking_status == 'Pending' %}selected{% endif %}>Pending</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="margin-top: 12px; display: flex; gap: 12px; justify-content: flex-end;">
+                <a href="{{ url_for('bookings.booking_detail', booking_id=booking.booking_id) }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Save Modifications</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

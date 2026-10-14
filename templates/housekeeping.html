@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Housekeeping - Grand Luxe ERP{% endblock %}
+{% block page_heading %}Housekeeping & Room Sanitation Logs{% endblock %}
+
+{% block content %}
+<!-- Filters -->
+<div class="filter-card">
+    <form method="GET" action="{{ url_for('housekeeping.list_housekeeping') }}">
+        <div class="filter-grid">
+            <div class="form-group">
+                <label for="room_number">Room Number</label>
+                <input type="text" id="room_number" name="room_number" class="form-control" placeholder="e.g. 101, G-102" value="{{ filters.room_number }}">
+            </div>
+
+            <div class="form-group">
+                <label for="employee_id">Assigned Housekeeper</label>
+                <select id="employee_id" name="employee_id" class="form-control">
+                    <option value="">All Housekeepers</option>
+                    {% for emp in employees %}
+                        <option value="{{ emp.employee_id }}" {% if filters.employee_id|string == emp.employee_id|string %}selected{% endif %}>
+                            {{ emp.employee_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="cleaning_status">Sanitation Status</label>
+                <select id="cleaning_status" name="cleaning_status" class="form-control">
+                    <option value="">All Statuses</option>
+                    {% for st in statuses %}
+                        <option value="{{ st }}" {% if filters.cleaning_status == st %}selected{% endif %}>{{ st }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="cleaning_date">Cleaning Date</label>
+                <input type="date" id="cleaning_date" name="cleaning_date" class="form-control" value="{{ filters.cleaning_date }}">
+            </div>
+
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="{{ url_for('housekeeping.list_housekeeping') }}" class="btn btn-secondary">Reset</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Housekeeping Table -->
+<div class="data-card">
+    <div class="data-card-header">
+        <div class="data-card-title">Housekeeping Logs ({{ records|length }} entries)</div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Log ID</th>
+                    <th>Room Number</th>
+                    <th>Category</th>
+                    <th>Hotel Property</th>
+                    <th>Assigned Staff</th>
+                    <th>Cleaning Date</th>
+                    <th>Current Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for hk in records %}
+                <tr>
+                    <td><strong>#{{ hk.housekeeping_id }}</strong></td>
+                    <td><strong>Room {{ hk.room_number }}</strong></td>
+                    <td>{{ hk.room_type }}</td>
+                    <td>{{ hk.hotel_name }}</td>
+                    <td>{{ hk.employee_name }}</td>
+                    <td>{{ hk.cleaning_date }}</td>
+                    <td>
+                        {% if hk.cleaning_status == 'Clean' %}
+                            <span class="badge badge-green">Clean</span>
+                        {% elif hk.cleaning_status == 'In Progress' %}
+                            <span class="badge badge-blue">In Progress</span>
+                        {% elif hk.cleaning_status == 'Pending Inspection' %}
+                            <span class="badge badge-yellow">Pending Inspection</span>
+                        {% else %}
+                            <span class="badge badge-red">Dirty</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🧹</div>
+                            <div class="empty-state-title">No housekeeping logs match criteria</div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

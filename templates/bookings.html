@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Reservations - Grand Luxe ERP{% endblock %}
+{% block page_heading %}Reservation Management & Front Desk Check-Ins{% endblock %}
+
+{% block content %}
+<!-- Filter Controls -->
+<div class="filter-card">
+    <form method="GET" action="{{ url_for('bookings.list_bookings') }}">
+        <div class="filter-grid">
+            <div class="form-group">
+                <label for="booking_id">Booking ID</label>
+                <input type="number" id="booking_id" name="booking_id" class="form-control" placeholder="e.g. 1, 10" value="{{ filters.booking_id }}">
+            </div>
+
+            <div class="form-group">
+                <label for="customer_name">Guest Name</label>
+                <input type="text" id="customer_name" name="customer_name" class="form-control" placeholder="Search guest name..." value="{{ filters.customer_name }}">
+            </div>
+
+            <div class="form-group">
+                <label for="hotel_id">Hotel Property</label>
+                <select id="hotel_id" name="hotel_id" class="form-control">
+                    <option value="">All Hotels</option>
+                    {% for h in hotels %}
+                        <option value="{{ h.hotel_id }}" {% if filters.hotel_id|string == h.hotel_id|string %}selected{% endif %}>{{ h.hotel_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="booking_status">Booking Status</label>
+                <select id="booking_status" name="booking_status" class="form-control">
+                    <option value="">All Statuses</option>
+                    <option value="Confirmed" {% if filters.booking_status == 'Confirmed' %}selected{% endif %}>Confirmed</option>
+                    <option value="Pending" {% if filters.booking_status == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="Completed" {% if filters.booking_status == 'Completed' %}selected{% endif %}>Completed</option>
+                    <option value="Cancelled" {% if filters.booking_status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="check_in_from">Check-In From</label>
+                <input type="date" id="check_in_from" name="check_in_from" class="form-control" value="{{ filters.check_in_from }}">
+            </div>
+
+            <div class="form-group">
+                <label for="check_in_to">Check-In To</label>
+                <input type="date" id="check_in_to" name="check_in_to" class="form-control" value="{{ filters.check_in_to }}">
+            </div>
+
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="{{ url_for('bookings.list_bookings') }}" class="btn btn-secondary">Reset</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Bookings List Table -->
+<div class="data-card">
+    <div class="data-card-header">
+        <div class="data-card-title">All Reservations ({{ bookings|length }} found)</div>
+        <a href="{{ url_for('bookings.new_booking') }}" class="btn btn-primary">+ Create New Reservation</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Guest</th>
+                    <th>Hotel Property</th>
+                    <th>Room</th>
+                    <th>Check-In &rarr; Check-Out</th>
+                    <th>Guests</th>
+                    <th>Status</th>
+                    <th>Total Value</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bookings %}
+                <tr>
+                    <td><strong>#{{ b.booking_id }}</strong></td>
+                    <td>
+                        <div><strong>{{ b.customer_name }}</strong></div>
+                        <small style="color: var(--text-muted);">{{ b.customer_email }}</small>
+                    </td>
+                    <td>{{ b.hotel_name }}</td>
+                    <td>
+                        <span class="badge badge-gray">{{ b.room_number }}</span>
+                        <small>{{ b.room_type }}</small>
+                    </td>
+                    <td>{{ b.check_in_date }} &rarr; {{ b.check_out_date }}</td>
+                    <td>{{ b.number_of_guests }} Guest(s)</td>
+                    <td>
+                        {% if b.booking_status == 'Confirmed' %}
+                            <span class="badge badge-green">Confirmed</span>
+                        {% elif b.booking_status == 'Completed' %}
+                            <span class="badge badge-blue">Completed</span>
+                        {% elif b.booking_status == 'Pending' %}
+                            <span class="badge badge-yellow">Pending</span>
+                        {% else %}
+                            <span class="badge badge-red">{{ b.booking_status }}</span>
+                        {% endif %}
+                    </td>
+                    <td><strong>₹{{ "{:,.2f}".format(b.total_amount) }}</strong></td>
+                    <td>
+                        <a href="{{ url_for('bookings.booking_detail', booking_id=b.booking_id) }}" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.78rem;">View Details</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="9">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📋</div>
+                            <div class="empty-state-title">No bookings match the selected filters</div>
+                            <p>Try broadening your date range or clearing specific filter conditions.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
