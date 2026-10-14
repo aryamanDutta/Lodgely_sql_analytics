@@ -7,7 +7,7 @@
 
 ## 1. Project Overview
 
-The **Grand Luxe Hotel Management System** is a full-stack, enterprise-grade, database-driven web application designed to fulfill all requirements of the **CAM 5 Database Application** laboratory assignment.
+The **Lodgely Hotel Management System** is a full-stack, enterprise-grade, database-driven web application designed to fulfill all requirements of the **CAM 5 Database Application** laboratory assignment.
 
 The system manages multi-property hotel operations, room inventories, customer relationships, reservation schedules, multi-channel payment settlements, dining menus, guest amenities, human resources, and room housekeeping audits.
 

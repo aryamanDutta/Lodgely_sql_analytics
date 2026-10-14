@@ -11,3 +11,5 @@ venv/
 .coverage
 htmlcov/
 *.log
+
+docs/db_live_data.json
