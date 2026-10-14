@@ -28,9 +28,74 @@ def test_404_error_page(client):
     assert b"404 - Record or Page Not Found" in response.data
 
 @patch('routes.dashboard.query_one')
+def test_landing_page_rendering(mock_query_one, client):
+    """Test public landing page at / renders brand headline and CTAs."""
+    mock_query_one.return_value = {
+        'total_hotels': 3,
+        'total_rooms': 20,
+        'total_bookings': 20,
+        'total_customers': 15
+    }
+    response = client.get('/')
+    assert response.status_code == 200
+    assert b"Grand Luxe" in response.data
+    assert b"One Platform." in response.data
+    assert b"Every Hotel Operation." in response.data
+    assert b"Open Dashboard" in response.data
+
+
+def test_login_page_get(client):
+    """Test /login endpoint returns 200 with staff authentication form."""
+    response = client.get('/login')
+    assert response.status_code == 200
+    assert b"Welcome Back" in response.data
+    assert b"Staff Username" in response.data
+    assert b"Aryam Khan" in response.data
+
+
+@patch('routes.dashboard.query_one')
+def test_login_page_post_success(mock_query_one, client):
+    """Test /login form submission establishes staff session and redirects to dashboard."""
+    mock_query_one.return_value = {
+        'employee_id': 1,
+        'employee_name': 'Aryam Khan',
+        'designation': 'Administrator',
+        'phone': '+91 97111 00001'
+    }
+    response = client.post('/login', data={
+        'identifier': 'Aryam Khan',
+        'password': 'hotel_secure_pwd_2026'
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Welcome back, Aryam Khan" in response.data
+
+
+def test_logout_route(client):
+    """Test /logout clears session and redirects to public landing page."""
+    response = client.get('/logout', follow_redirects=True)
+    assert response.status_code == 200
+    assert b"signed out of Grand Luxe ERP" in response.data
+
+
+@patch('routes.dashboard.query_all')
+def test_global_search_route(mock_query_all, client):
+    """Test /search endpoint searches across guests, rooms, bookings, and services."""
+    mock_query_all.side_effect = [
+        [{'customer_id': 1, 'customer_name': 'Aarav Sharma', 'email': 'aarav@example.com', 'phone': '98112', 'address': 'Delhi'}], # customers
+        [{'room_id': 1, 'room_number': '101', 'room_type': 'Single', 'price_per_night': 2500, 'room_status': 'Available', 'hotel_name': 'Grand Horizon'}], # rooms
+        [{'booking_id': 1, 'customer_name': 'Aarav Sharma', 'room_number': '101', 'hotel_name': 'Grand Horizon', 'check_in_date': '2026-10-10', 'booking_status': 'Confirmed'}], # bookings
+        [{'service_id': 1, 'service_name': 'Airport Shuttle', 'price': 1500, 'hotel_name': 'Grand Horizon'}] # services
+    ]
+    response = client.get('/search?q=Sharma')
+    assert response.status_code == 200
+    assert b"Results for" in response.data
+    assert b"Aarav Sharma" in response.data
+
+
+@patch('routes.dashboard.query_one')
 @patch('routes.dashboard.query_all')
 def test_dashboard_route_rendering(mock_query_all, mock_query_one, client):
-    """Test dashboard route rendering with mocked query responses."""
+    """Test operational dashboard route rendering with mocked query responses."""
     # query_one is called 3 times: stats, occupancy, outstanding
     mock_query_one.side_effect = [
         {   # stats
@@ -40,14 +105,17 @@ def test_dashboard_route_rendering(mock_query_all, mock_query_one, client):
             'pending_amount': 64100.00, 'pending_count': 5
         },
         {   # occupancy
-            'total_rooms': 20, 'occupied_rooms': 6, 'active_rooms': 18,
+            'total_rooms': 20, 'occupied_rooms': 6, 'available_rooms': 12,
+            'maintenance_rooms': 2, 'active_rooms': 18,
             'occupancy_pct': 33.3
         },
         {   # outstanding
             'bookings_with_balance': 4, 'total_outstanding': 125000.00
         }
     ]
-    # query_all is called 5 times: arrivals, departures, booking_status, room_types, recent_bookings
+    # query_all is called 7 times:
+    # 1. hotel_occupancy, 2. monthly_rev, 3. todays_arrivals,
+    # 4. todays_departures, 5. booking_status_data, 6. room_types_data, 7. recent_bookings
     sample_booking = {
         'booking_id': 1, 'customer_name': 'Aarav Sharma',
         'customer_email': 'aarav@example.com', 'room_number': '101',
@@ -57,6 +125,8 @@ def test_dashboard_route_rendering(mock_query_all, mock_query_one, client):
         'total_amount': 21000.00
     }
     mock_query_all.side_effect = [
+        [{'hotel_id': 1, 'hotel_name': 'The Grand Horizon', 'total_rooms': 7, 'occupied_rooms': 5, 'occupancy_rate': 71.4}], # hotel_occupancy
+        [{'month_label': 'Oct 2026', 'sort_month': '2026-10', 'total_amount': 368500.00}], # monthly_rev
         [sample_booking],                                    # todays_arrivals
         [sample_booking],                                    # todays_departures
         [{'booking_status': 'Confirmed', 'count': 8}],      # booking_status_data
@@ -64,9 +134,9 @@ def test_dashboard_route_rendering(mock_query_all, mock_query_one, client):
         [sample_booking]                                     # recent_bookings
     ]
 
-    response = client.get('/')
+    response = client.get('/dashboard')
     assert response.status_code == 200
-    assert b"Executive Overview" in response.data
+    assert b"Dashboard" in response.data
     assert b"Aarav Sharma" in response.data
     assert b"Grand Horizon" in response.data
 

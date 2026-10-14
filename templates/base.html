@@ -5,118 +5,232 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Grand Luxe - Hotel Management ERP{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
-    <!-- Sidebar Navigation -->
+    <!-- Sidebar Navigation (Image 3 & Image 2 Target) -->
     <aside class="sidebar">
         <div class="sidebar-header">
-            <div class="brand-title">
-                <span>🏨</span>
-                <div>
-                    <div>Grand Luxe</div>
-                    <span class="brand-badge">CAM 5 MySQL ERP</span>
+            <a href="{{ url_for('dashboard.index') }}" class="brand-wrapper">
+                <div class="brand-icon-star">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
+                    </svg>
                 </div>
-            </div>
+                <div>
+                    <div class="brand-text-title">Grand Luxe</div>
+                    <div class="brand-text-subtitle">Hotel ERP</div>
+                </div>
+            </a>
         </div>
 
         <ul class="sidebar-menu">
-            <li class="menu-category">Main Dashboard</li>
+            <!-- 1. Overview -->
             <li class="{% if request.endpoint == 'dashboard.index' %}active{% endif %}">
                 <a href="{{ url_for('dashboard.index') }}">
-                    <span>📊</span>
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                            <polyline points="9 22 9 12 15 12 15 22"/>
+                        </svg>
+                    </span>
                     <span>Overview</span>
                 </a>
             </li>
 
-            <li class="menu-category">Front Desk & Operations</li>
+            <!-- 2. Rooms & Inventory -->
             <li class="{% if request.blueprint == 'rooms' %}active{% endif %}">
                 <a href="{{ url_for('rooms.list_rooms') }}">
-                    <span>🛏️</span>
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9"/>
+                        </svg>
+                    </span>
                     <span>Rooms & Inventory</span>
                 </a>
             </li>
+
+            <!-- 3. Customer Directory -->
             <li class="{% if request.blueprint == 'customers' %}active{% endif %}">
                 <a href="{{ url_for('customers.list_customers') }}">
-                    <span>👥</span>
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </span>
                     <span>Customer Directory</span>
                 </a>
             </li>
+
+            <!-- 4. Reservations -->
             <li class="{% if request.blueprint == 'bookings' %}active{% endif %}">
                 <a href="{{ url_for('bookings.list_bookings') }}">
-                    <span>📅</span>
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                    </span>
                     <span>Reservations</span>
                 </a>
             </li>
+
+            <!-- 5. Payments & Billing -->
             <li class="{% if request.blueprint == 'payments' %}active{% endif %}">
                 <a href="{{ url_for('payments.list_payments') }}">
-                    <span>💳</span>
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                            <line x1="1" y1="10" x2="23" y2="10"/>
+                        </svg>
+                    </span>
                     <span>Payments & Billing</span>
                 </a>
             </li>
 
-            <li class="menu-category">Hotel Facilities</li>
+            <!-- 6. Dining & Menus -->
             <li class="{% if request.blueprint == 'restaurants' %}active{% endif %}">
                 <a href="{{ url_for('restaurants.list_restaurants_and_food') }}">
-                    <span>🍽️</span>
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+                            <line x1="6" y1="1" x2="6" y2="4"/>
+                            <line x1="10" y1="1" x2="10" y2="4"/>
+                            <line x1="14" y1="1" x2="14" y2="4"/>
+                        </svg>
+                    </span>
                     <span>Dining & Menus</span>
                 </a>
             </li>
+
+            <!-- 7. Hotel Services -->
             <li class="{% if request.blueprint == 'services' %}active{% endif %}">
                 <a href="{{ url_for('services.list_services') }}">
-                    <span>🛎️</span>
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                        </svg>
+                    </span>
                     <span>Hotel Services</span>
                 </a>
             </li>
 
-            <li class="menu-category">Staff & Maintenance</li>
+            <!-- 8. Staff Directory -->
             <li class="{% if request.blueprint == 'employees' %}active{% endif %}">
                 <a href="{{ url_for('employees.list_employees') }}">
-                    <span>👔</span>
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </span>
                     <span>Staff Directory</span>
                 </a>
             </li>
+
+            <!-- 9. Housekeeping -->
             <li class="{% if request.blueprint == 'housekeeping' %}active{% endif %}">
                 <a href="{{ url_for('housekeeping.list_housekeeping') }}">
-                    <span>🧹</span>
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M2 22l10-10M12 2l4 4-8 8-4-4 8-8zM18 8l4 4"/>
+                        </svg>
+                    </span>
                     <span>Housekeeping</span>
                 </a>
             </li>
 
-            <li class="menu-category">Business Intelligence</li>
+            <!-- 10. SQL Analytics -->
             <li class="{% if request.blueprint == 'analytics' %}active{% endif %}">
                 <a href="{{ url_for('analytics.index') }}">
-                    <span>📈</span>
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <line x1="18" y1="20" x2="18" y2="10"/>
+                            <line x1="12" y1="20" x2="12" y2="4"/>
+                            <line x1="6" y1="20" x2="6" y2="14"/>
+                        </svg>
+                    </span>
                     <span>SQL Analytics</span>
                 </a>
             </li>
         </ul>
 
         <div class="sidebar-footer">
-            <div>B.Tech CSE Project</div>
-            <div>DBMS / MySQL 8.0 & Flask</div>
+            <div><strong>CAM 5 DBMS Assignment</strong></div>
+            <div>MySQL 8.0 & Flask ERP © 2026</div>
         </div>
     </aside>
 
     <!-- Main Content Area -->
     <div class="main-wrapper">
+        <!-- Top Navigation Bar (Image 3 Target) -->
         <header class="top-navbar">
-            <h1 class="top-nav-title">{% block page_heading %}Hotel Management Dashboard{% endblock %}</h1>
-            <div class="top-nav-meta">
-                <span class="badge badge-blue">MySQL 8.0 Connected</span>
-                <a href="{{ url_for('bookings.new_booking') }}" class="btn btn-primary">+ New Booking</a>
+            <div class="top-nav-left">
+                <form class="omni-search-form" method="GET" action="{{ url_for('dashboard.global_search') }}">
+                    <svg class="omni-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" name="q" class="omni-search-input" 
+                           placeholder="Search bookings, guests, rooms, or services..." 
+                           value="{{ request.args.get('q', '') }}">
+                </form>
+            </div>
+
+            <div class="top-nav-right">
+                <!-- Notification Bell -->
+                <a href="{{ url_for('dashboard.index') }}" class="top-action-btn-circle" title="Operational Alerts">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    </svg>
+                    <span class="notification-dot"></span>
+                </a>
+
+                <!-- User Profile Badge (Image 3 Target: Aryam Khan - Administrator) -->
+                <div class="user-profile-badge" onclick="window.location.href='{{ url_for('dashboard.login') }}'" title="Staff Profile / Switch Account">
+                    <div class="user-avatar-circle">
+                        <span>AK</span>
+                    </div>
+                    <div class="user-info-text">
+                        <span class="user-name">{{ session.get('user', {}).get('name', 'Aryam Khan') }}</span>
+                        <span class="user-role">{{ session.get('user', {}).get('role', 'Administrator') }}</span>
+                    </div>
+                    <svg class="user-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </div>
             </div>
         </header>
 
+        <!-- Page Content -->
         <main class="content-container">
             <!-- Flash Message Alerts -->
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                        <div class="alert alert-{{ category }}">
+                            <span>{% if category == 'success' %}✓{% elif category == 'danger' %}✕{% else %}ℹ{% endif %}</span>
+                            <span>{{ message }}</span>
+                        </div>
                     {% endfor %}
                 {% endif %}
             {% endwith %}
+
+            {% block page_heading_wrapper %}
+            <div class="page-header-row mb-4" {% if not self.page_heading() %}style="display: none;"{% endif %}>
+                <div class="page-title-group">
+                    <h1 class="page-title">{% block page_heading %}{% endblock %}</h1>
+                </div>
+            </div>
+            {% endblock %}
 
             {% block content %}{% endblock %}
         </main>

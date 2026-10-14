@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results for "{{ query }}" - Grand Luxe ERP{% endblock %}
+{% block page_heading %}Search Results{% endblock %}
+
+{% block content %}
+<div class="search-results-container">
+    <div class="search-header-panel">
+        <h2>Results for <span class="search-highlight">"{{ query }}"</span></h2>
+        <p class="text-secondary">Searched across guests, rooms, reservations, and hotel services.</p>
+    </div>
+
+    <!-- 1. Customers / Guests Results -->
+    <div class="data-card mb-4">
+        <div class="data-card-header">
+            <div class="data-card-title">👥 Matching Guests ({{ customers|length }})</div>
+            <a href="{{ url_for('customers.list_customers', search=query) }}" class="btn btn-secondary btn-sm">View in Directory →</a>
+        </div>
+        {% if customers %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Guest Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>City / Address</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in customers %}
+                    <tr>
+                        <td><strong>{{ c.customer_name }}</strong></td>
+                        <td>{{ c.email }}</td>
+                        <td>{{ c.phone }}</td>
+                        <td>{{ c.address }}</td>
+                        <td>
+                            <a href="{{ url_for('customers.customer_detail', customer_id=c.customer_id) }}" class="btn btn-secondary btn-xs">Profile</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-4 text-center text-secondary">No guests matched "{{ query }}".</div>
+        {% endif %}
+    </div>
+
+    <!-- 2. Rooms Results -->
+    <div class="data-card mb-4">
+        <div class="data-card-header">
+            <div class="data-card-title">🛏️ Matching Rooms ({{ rooms|length }})</div>
+            <a href="{{ url_for('rooms.list_rooms', room_number=query) }}" class="btn btn-secondary btn-sm">View in Rooms →</a>
+        </div>
+        {% if rooms %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Room Number</th>
+                        <th>Property</th>
+                        <th>Category</th>
+                        <th>Price / Night</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in rooms %}
+                    <tr>
+                        <td><strong>{{ r.room_number }}</strong></td>
+                        <td>{{ r.hotel_name }}</td>
+                        <td>{{ r.room_type }}</td>
+                        <td><strong>₹{{ "{:,.2f}".format(r.price_per_night) }}</strong></td>
+                        <td>
+                            {% if r.room_status == 'Available' %}
+                                <span class="badge badge-green">Available</span>
+                            {% elif r.room_status == 'Occupied' %}
+                                <span class="badge badge-blue">Occupied</span>
+                            {% else %}
+                                <span class="badge badge-yellow">Maintenance</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('rooms.edit_room', room_id=r.room_id) }}" class="btn btn-secondary btn-xs">Edit</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-4 text-center text-secondary">No rooms matched "{{ query }}".</div>
+        {% endif %}
+    </div>
+
+    <!-- 3. Bookings Results -->
+    <div class="data-card mb-4">
+        <div class="data-card-header">
+            <div class="data-card-title">📅 Matching Reservations ({{ bookings|length }})</div>
+            <a href="{{ url_for('bookings.list_bookings', search=query) }}" class="btn btn-secondary btn-sm">View All Bookings →</a>
+        </div>
+        {% if bookings %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Guest</th>
+                        <th>Property</th>
+                        <th>Room</th>
+                        <th>Check-in</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in bookings %}
+                    <tr>
+                        <td><strong>#{{ b.booking_id }}</strong></td>
+                        <td>{{ b.customer_name }}</td>
+                        <td>{{ b.hotel_name }}</td>
+                        <td>Room {{ b.room_number }}</td>
+                        <td>{{ b.check_in_date }}</td>
+                        <td>
+                            {% if b.booking_status == 'Confirmed' %}
+                                <span class="badge badge-green">Confirmed</span>
+                            {% elif b.booking_status == 'Completed' %}
+                                <span class="badge badge-blue">Completed</span>
+                            {% elif b.booking_status == 'Pending' %}
+                                <span class="badge badge-yellow">Pending</span>
+                            {% else %}
+                                <span class="badge badge-red">{{ b.booking_status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('bookings.booking_detail', booking_id=b.booking_id) }}" class="btn btn-secondary btn-xs">Details</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-4 text-center text-secondary">No reservations matched "{{ query }}".</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

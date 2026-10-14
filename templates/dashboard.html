@@ -1,249 +1,279 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - Grand Luxe Hotel ERP{% endblock %}
-{% block page_heading %}Executive Overview & Operations{% endblock %}
+{% block title %}Dashboard — Grand Luxe Hotel ERP{% endblock %}
 
 {% block content %}
-<!-- KPI Stats Grid -->
-<div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-header">Total Hotels</div>
-        <div class="stat-value">{{ stats.total_hotels or 0 }}</div>
-        <div class="stat-footer">Properties across prime destinations</div>
+<!-- Page Header (Image 3 Target) -->
+<div class="page-header-row">
+    <div class="page-title-group">
+        <h1>Dashboard</h1>
+        <p>Welcome back! Here's what's happening at Grand Luxe.</p>
     </div>
 
-    <div class="stat-card">
-        <div class="stat-header">Total Inventory</div>
-        <div class="stat-value">{{ stats.total_rooms or 0 }}</div>
-        <div class="stat-footer">{{ stats.available_rooms or 0 }} Currently Available</div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-header">Total Customers</div>
-        <div class="stat-value">{{ stats.total_customers or 0 }}</div>
-        <div class="stat-footer">Registered unique guest profiles</div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-header">Total Bookings</div>
-        <div class="stat-value">{{ stats.total_bookings or 0 }}</div>
-        <div class="stat-footer">{{ stats.confirmed_bookings or 0 }} Confirmed / In-House</div>
-    </div>
-
-    <div class="stat-card" style="border-left: 4px solid var(--accent-success);">
-        <div class="stat-header">Collected Revenue</div>
-        <div class="stat-value" style="color: var(--accent-success);">₹{{ "{:,.2f}".format(stats.total_revenue or 0) }}</div>
-        <div class="stat-footer">Completed payments recorded in MySQL</div>
-    </div>
-
-    <div class="stat-card" style="border-left: 4px solid var(--accent-warning);">
-        <div class="stat-header">Pending Payments</div>
-        <div class="stat-value" style="color: var(--accent-warning);">₹{{ "{:,.2f}".format(stats.pending_amount or 0) }}</div>
-        <div class="stat-footer">{{ stats.pending_count or 0 }} Unsettled invoices</div>
-    </div>
-</div>
-
-<!-- Operational Metrics Row -->
-<div class="stats-grid" style="margin-top: 0; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
-    <div class="stat-card" style="border-left: 4px solid var(--accent-primary);">
-        <div class="stat-header">Live Occupancy Rate</div>
-        <div class="stat-value" style="color: var(--accent-primary);">{{ occupancy.occupancy_pct or 0 }}%</div>
-        <div class="stat-footer">{{ occupancy.occupied_rooms or 0 }} / {{ occupancy.active_rooms or 0 }} active rooms occupied</div>
-    </div>
-
-    <div class="stat-card" style="border-left: 4px solid var(--accent-danger);">
-        <div class="stat-header">Outstanding Balances</div>
-        <div class="stat-value" style="color: var(--accent-danger);">₹{{ "{:,.2f}".format(outstanding.total_outstanding or 0) }}</div>
-        <div class="stat-footer">{{ outstanding.bookings_with_balance or 0 }} booking(s) with unpaid balance</div>
-    </div>
-
-    <div class="stat-card" style="border-left: 4px solid var(--accent-success);">
-        <div class="stat-header">Today's Arrivals</div>
-        <div class="stat-value" style="color: var(--accent-success);">{{ todays_arrivals|length }}</div>
-        <div class="stat-footer">Confirmed check-ins scheduled today</div>
-    </div>
-
-    <div class="stat-card" style="border-left: 4px solid var(--accent-warning);">
-        <div class="stat-header">Today's Departures</div>
-        <div class="stat-value" style="color: var(--accent-warning);">{{ todays_departures|length }}</div>
-        <div class="stat-footer">Expected checkouts due today</div>
-    </div>
-</div>
-
-{% if todays_arrivals %}
-<!-- Today's Arrivals Table -->
-<div class="data-card" style="margin-bottom: 24px;">
-    <div class="data-card-header">
-        <div class="data-card-title">🔑 Today's Arrivals ({{ todays_arrivals|length }})</div>
-        <a href="{{ url_for('bookings.list_bookings') }}" class="btn btn-secondary">All Reservations &rarr;</a>
-    </div>
-    <div class="table-responsive">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Booking ID</th>
-                    <th>Guest</th>
-                    <th>Hotel</th>
-                    <th>Room</th>
-                    <th>Guests</th>
-                    <th>Checkout</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for a in todays_arrivals %}
-                <tr>
-                    <td><strong>#{{ a.booking_id }}</strong></td>
-                    <td>{{ a.customer_name }}</td>
-                    <td>{{ a.hotel_name }}</td>
-                    <td><span class="badge badge-gray">{{ a.room_number }}</span> {{ a.room_type }}</td>
-                    <td>{{ a.number_of_guests }}</td>
-                    <td>{{ a.check_out_date }}</td>
-                    <td>
-                        <a href="{{ url_for('bookings.booking_detail', booking_id=a.booking_id) }}"
-                           class="btn btn-secondary" style="padding: 3px 10px; font-size: 0.78rem;">View</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-{% endif %}
-
-{% if todays_departures %}
-<!-- Today's Departures Table -->
-<div class="data-card" style="margin-bottom: 24px;">
-    <div class="data-card-header">
-        <div class="data-card-title">📤 Today's Departures ({{ todays_departures|length }})</div>
-    </div>
-    <div class="table-responsive">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Booking ID</th>
-                    <th>Guest</th>
-                    <th>Hotel</th>
-                    <th>Room</th>
-                    <th>Total Amount</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for d in todays_departures %}
-                <tr>
-                    <td><strong>#{{ d.booking_id }}</strong></td>
-                    <td>{{ d.customer_name }}</td>
-                    <td>{{ d.hotel_name }}</td>
-                    <td><span class="badge badge-blue">{{ d.room_number }}</span> {{ d.room_type }}</td>
-                    <td><strong>₹{{ "{:,.2f}".format(d.total_amount) }}</strong></td>
-                    <td>
-                        <a href="{{ url_for('bookings.booking_detail', booking_id=d.booking_id) }}"
-                           class="btn btn-secondary" style="padding: 3px 10px; font-size: 0.78rem;">View</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-{% endif %}
-
-<!-- Dynamic Charts Grid -->
-<div class="charts-grid">
-    <div class="chart-card">
-        <h3>Booking Status Breakdown</h3>
-        <div class="chart-wrapper">
-            <canvas id="bookingStatusChart" 
-                    data-labels='{{ chart_booking_labels|safe }}' 
-                    data-counts='{{ chart_booking_counts|safe }}'></canvas>
+    <div class="page-header-actions">
+        <div class="mysql-status-pill">
+            <span class="status-indicator-dot"></span>
+            <span>MySQL 8.0 Connected</span>
         </div>
-        <div class="chart-fallback" style="display: none; padding: 20px; text-align: center; color: var(--text-muted);">
-            Chart visualization offline. Raw data available in SQL Analytics.
+        <a href="{{ url_for('bookings.new_booking') }}" class="btn btn-dark btn-pill">
+            <span>+</span>
+            <span>New Booking</span>
+        </a>
+    </div>
+</div>
+
+<!-- 1. Four Top KPI Cards with Sparklines (Image 3 Target) -->
+<div class="kpi-cards-grid">
+    <!-- Card 1: Total Bookings -->
+    <div class="kpi-card">
+        <div class="kpi-card-content">
+            <div class="kpi-card-top">
+                <div class="kpi-icon-badge kpi-icon-orange">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                </div>
+                <span class="kpi-card-label">Total Bookings</span>
+            </div>
+            <div class="kpi-card-value">{{ stats.total_bookings or 0 }}</div>
+            <div class="kpi-card-trend positive">
+                <span>↑</span>
+                <span>{{ stats.confirmed_bookings or 0 }} confirmed / active</span>
+            </div>
+        </div>
+        <div class="kpi-sparkline-wrap">
+            <svg viewBox="0 0 100 45" preserveAspectRatio="none">
+                <path d="M0,35 Q20,15 40,28 T80,10 T100,18" fill="none" stroke="#FF762F" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
         </div>
     </div>
 
-    <div class="chart-card">
-        <h3>Room Capacity by Category</h3>
-        <div class="chart-wrapper">
-            <canvas id="roomTypesChart" 
-                    data-labels='{{ chart_room_labels|safe }}' 
-                    data-counts='{{ chart_room_counts|safe }}'></canvas>
+    <!-- Card 2: Room Occupancy -->
+    <div class="kpi-card">
+        <div class="kpi-card-content">
+            <div class="kpi-card-top">
+                <div class="kpi-icon-badge kpi-icon-lavender">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9"/>
+                    </svg>
+                </div>
+                <span class="kpi-card-label">Room Occupancy</span>
+            </div>
+            <div class="kpi-card-value">{{ occupancy.occupancy_pct or 0 }}%</div>
+            <div class="kpi-card-trend" style="color: var(--lavender-dark);">
+                <span>{{ occupancy.occupied_rooms or 0 }} of {{ occupancy.active_rooms or stats.total_rooms or 0 }} rooms</span>
+            </div>
         </div>
-        <div class="chart-fallback" style="display: none; padding: 20px; text-align: center; color: var(--text-muted);">
-            Chart visualization offline. Raw data available in SQL Analytics.
+        <div class="kpi-sparkline-wrap">
+            <svg viewBox="0 0 100 45" preserveAspectRatio="none">
+                <path d="M0,32 Q25,38 45,20 T75,25 T100,12" fill="none" stroke="#8B5CF6" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Card 3: Revenue (Collected) -->
+    <div class="kpi-card">
+        <div class="kpi-card-content">
+            <div class="kpi-card-top">
+                <div class="kpi-icon-badge kpi-icon-purple">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="4" width="20" height="16" rx="2"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                </div>
+                <span class="kpi-card-label">Revenue (Collected)</span>
+            </div>
+            <div class="kpi-card-value">₹{{ "{:,.0f}".format(stats.total_revenue or 0) }}</div>
+            <div class="kpi-card-trend positive">
+                <span>↑</span>
+                <span>Completed settlements</span>
+            </div>
+        </div>
+        <div class="kpi-sparkline-wrap">
+            <svg viewBox="0 0 100 45" preserveAspectRatio="none">
+                <path d="M0,38 Q30,30 50,22 T80,18 T100,8" fill="none" stroke="#9180E8" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Card 4: Rooms Available -->
+    <div class="kpi-card">
+        <div class="kpi-card-content">
+            <div class="kpi-card-top">
+                <div class="kpi-icon-badge kpi-icon-peach">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    </svg>
+                </div>
+                <span class="kpi-card-label">Rooms Available</span>
+            </div>
+            <div class="kpi-card-value">{{ stats.available_rooms or 0 }}</div>
+            <div class="kpi-card-trend" style="color: var(--accent-orange);">
+                <span>{{ occupancy.maintenance_rooms or 0 }} in maintenance</span>
+            </div>
+        </div>
+        <div class="kpi-sparkline-wrap">
+            <svg viewBox="0 0 100 45" preserveAspectRatio="none">
+                <path d="M0,25 Q30,12 60,30 T100,16" fill="none" stroke="#FFA872" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
         </div>
     </div>
 </div>
 
-<!-- Recent Reservations Table -->
-<div class="data-card">
-    <div class="data-card-header">
-        <div class="data-card-title">Recent Reservations (Live MySQL JOINs)</div>
-        <a href="{{ url_for('bookings.list_bookings') }}" class="btn btn-secondary">View All Reservations &rarr;</a>
+<!-- 2. Middle Row: Recent Reservations & Occupancy by Property (Image 3 Target) -->
+<div class="dashboard-middle-grid">
+    <!-- Left: Recent Reservations Table -->
+    <div class="data-card" style="margin-bottom: 0;">
+        <div class="data-card-header">
+            <div class="data-card-title">Recent Reservations</div>
+            <a href="{{ url_for('bookings.list_bookings') }}" class="btn btn-secondary btn-xs">View All &rarr;</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Guest Name</th>
+                        <th>Hotel Property</th>
+                        <th>Room</th>
+                        <th>Stay Dates</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in recent_bookings %}
+                    <tr>
+                        <td><strong>#{{ b.booking_id }}</strong></td>
+                        <td>
+                            <strong>{{ b.customer_name }}</strong>
+                        </td>
+                        <td>{{ b.hotel_name }}</td>
+                        <td>
+                            <span class="badge badge-gray">{{ b.room_number }}</span>
+                        </td>
+                        <td style="white-space: nowrap; font-size: 0.8rem; color: var(--text-secondary);">
+                            {{ b.check_in_date }} &rarr; {{ b.check_out_date }}
+                        </td>
+                        <td>
+                            {% if b.booking_status == 'Confirmed' %}
+                                <span class="badge badge-green">Confirmed</span>
+                            {% elif b.booking_status == 'Completed' %}
+                                <span class="badge badge-blue">Completed</span>
+                            {% elif b.booking_status == 'Pending' %}
+                                <span class="badge badge-yellow">Pending</span>
+                            {% else %}
+                                <span class="badge badge-red">{{ b.booking_status }}</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: right; font-weight: 700;">
+                            ₹{{ "{:,.2f}".format(b.total_amount) }}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">
+                            No reservations recorded yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <div class="table-responsive">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Guest Name</th>
-                    <th>Hotel Property</th>
-                    <th>Room</th>
-                    <th>Stay Dates</th>
-                    <th>Guests</th>
-                    <th>Status</th>
-                    <th>Total Amount</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for b in recent_bookings %}
-                <tr>
-                    <td><strong>#{{ b.booking_id }}</strong></td>
-                    <td>
-                        <div><strong>{{ b.customer_name }}</strong></div>
-                        <small style="color: var(--text-muted);">{{ b.customer_email }}</small>
-                    </td>
-                    <td>{{ b.hotel_name }}</td>
-                    <td>
-                        <span class="badge badge-gray">{{ b.room_number }}</span>
-                        <small>{{ b.room_type }}</small>
-                    </td>
-                    <td>
-                        <div>{{ b.check_in_date }} &rarr; {{ b.check_out_date }}</div>
-                    </td>
-                    <td>{{ b.number_of_guests }} Guest(s)</td>
-                    <td>
-                        {% if b.booking_status == 'Confirmed' %}
-                            <span class="badge badge-green">Confirmed</span>
-                        {% elif b.booking_status == 'Completed' %}
-                            <span class="badge badge-blue">Completed</span>
-                        {% elif b.booking_status == 'Pending' %}
-                            <span class="badge badge-yellow">Pending</span>
-                        {% else %}
-                            <span class="badge badge-red">{{ b.booking_status }}</span>
-                        {% endif %}
-                    </td>
-                    <td><strong>₹{{ "{:,.2f}".format(b.total_amount) }}</strong></td>
-                    <td>
-                        <a href="{{ url_for('bookings.booking_detail', booking_id=b.booking_id) }}" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.78rem;">Details</a>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="9">
-                        <div class="empty-state">
-                            <div class="empty-state-icon">🏨</div>
-                            <div class="empty-state-title">No reservations recorded yet</div>
-                            <p>Seed data is pending or no bookings have been made.</p>
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Right: Occupancy by Hotel Property Bar Chart -->
+    <div class="chart-container-card">
+        <div class="chart-header-row">
+            <div class="chart-header-title">Occupancy by Hotel Property</div>
+            <select class="chart-filter-select">
+                <option>This Month</option>
+                <option>All Properties</option>
+            </select>
+        </div>
+        <div class="chart-canvas-box">
+            <canvas id="hotelOccupancyChart"
+                    data-labels='{{ chart_hotel_occ_labels|safe }}'
+                    data-rates='{{ chart_hotel_occ_rates|safe }}'></canvas>
+        </div>
     </div>
 </div>
+
+<!-- 3. Bottom Row: Revenue Trend, Bookings by Status, Quick Actions (Image 3 Target) -->
+<div class="dashboard-bottom-grid">
+    <!-- Left: Revenue Trend Line Chart -->
+    <div class="chart-container-card">
+        <div class="chart-header-row">
+            <div class="chart-header-title">Revenue Trend (Collected)</div>
+            <select class="chart-filter-select">
+                <option>Last 6 Months</option>
+                <option>Year to Date</option>
+            </select>
+        </div>
+        <div class="chart-canvas-box">
+            <canvas id="revenueTrendChart"
+                    data-labels='{{ chart_revenue_labels|safe }}'
+                    data-amounts='{{ chart_revenue_data|safe }}'></canvas>
+        </div>
+    </div>
+
+    <!-- Middle: Bookings by Status Donut Chart -->
+    <div class="chart-container-card">
+        <div class="chart-header-row">
+            <div class="chart-header-title">Bookings by Status</div>
+        </div>
+        <div class="donut-layout-wrap">
+            <div class="donut-canvas-wrap">
+                <canvas id="bookingStatusDonut"
+                        data-labels='{{ chart_booking_labels|safe }}'
+                        data-counts='{{ chart_booking_counts|safe }}'></canvas>
+                <div class="donut-center-label">
+                    <div class="donut-center-count">{{ stats.total_bookings or 0 }}</div>
+                    <div class="donut-center-sub">Total</div>
+                </div>
+            </div>
+            <div class="donut-legend-list" id="donutCustomLegend">
+                <!-- Dynamically populated via charts.js to match Image 3 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Quick Actions 2x3 Grid -->
+    <div class="chart-container-card">
+        <div class="chart-header-row">
+            <div class="chart-header-title">Quick Actions</div>
+        </div>
+        <div class="quick-actions-grid">
+            <a href="{{ url_for('bookings.new_booking') }}" class="quick-action-pill highlight-orange">
+                <span class="qa-icon">📅</span>
+                <span>New Booking</span>
+            </a>
+            <a href="{{ url_for('customers.new_customer') }}" class="quick-action-pill">
+                <span class="qa-icon">👤</span>
+                <span>Add Guest</span>
+            </a>
+            <a href="{{ url_for('rooms.list_rooms') }}" class="quick-action-pill">
+                <span class="qa-icon">🛏️</span>
+                <span>Manage Rooms</span>
+            </a>
+            <a href="{{ url_for('payments.list_payments') }}" class="quick-action-pill">
+                <span class="qa-icon">💳</span>
+                <span>Record Payment</span>
+            </a>
+            <a href="{{ url_for('housekeeping.list_housekeeping') }}" class="quick-action-pill">
+                <span class="qa-icon">🧹</span>
+                <span>Housekeeping</span>
+            </a>
+            <a href="{{ url_for('analytics.index') }}" class="quick-action-pill">
+                <span class="qa-icon">📊</span>
+                <span>View Analytics</span>
+            </a>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

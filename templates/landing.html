@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grand Luxe Hotel ERP — One Platform. Every Hotel Operation.</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body class="landing-body">
+
+    <!-- 1. Floating Rounded Navigation Bar (Image 1 Inspired) -->
+    <header class="landing-nav-wrap">
+        <nav class="landing-nav">
+            <a href="{{ url_for('dashboard.landing') }}" class="landing-nav-brand">
+                <div class="brand-icon-star">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
+                    </svg>
+                </div>
+                <span>Grand Luxe</span>
+            </a>
+
+            <ul class="landing-nav-links">
+                <li><a href="#hero">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#operations">Operations</a></li>
+                <li><a href="#analytics">Analytics</a></li>
+                <li><a href="#about">About</a></li>
+            </ul>
+
+            <div class="landing-nav-actions">
+                <a href="{{ url_for('dashboard.login') }}" class="btn btn-secondary btn-sm btn-pill">Staff Login</a>
+                <a href="{{ url_for('dashboard.index') }}" class="btn btn-dark btn-sm btn-pill">Open Dashboard</a>
+            </div>
+        </nav>
+    </header>
+ 
+    <!-- Flash Messages on Landing Page -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div style="max-width: 680px; margin: 90px auto -60px auto; padding: 0 20px; position: relative; z-index: 100;">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" style="box-shadow: var(--shadow-sm);">
+                        <span>{% if category == 'success' %}✓{% elif category == 'danger' %}✕{% else %}ℹ{% endif %}</span>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- 2. Hero Section (Image 1 Style) -->
+    <section class="landing-hero" id="hero">
+        <div class="landing-eyebrow reveal-init">
+            <span>✨</span>
+            <span>HOTEL OPERATIONS PLATFORM</span>
+        </div>
+
+        <h1 class="landing-hero-headline reveal-init delay-1">
+            One Platform. <br>
+            <span class="gradient-text">Every Hotel Operation.</span>
+        </h1>
+
+        <p class="landing-hero-subtitle reveal-init delay-2">
+            Streamline multi-property reservations, room inventory, guest profiles, payment settlements, housekeeping audits, and real-time SQL analytics in one unified ERP.
+        </p>
+
+        <div class="landing-cta-group reveal-init delay-3">
+            <a href="{{ url_for('dashboard.index') }}" class="landing-cta-primary">
+                Open Dashboard &rarr;
+            </a>
+            <a href="#features" class="landing-cta-secondary">
+                Explore Features
+            </a>
+        </div>
+
+        <!-- 3. Scroll-Revealed Interactive ERP Dashboard Showcase (Image 1 + Image 3) -->
+        <div class="landing-preview-frame scale-reveal-init" id="preview-frame">
+            <div class="landing-preview-window">
+                <!-- Browser Bar -->
+                <div class="window-control-bar">
+                    <span class="window-dot red"></span>
+                    <span class="window-dot yellow"></span>
+                    <span class="window-dot green"></span>
+                    <div class="window-url-bar">https://grandluxe.hotel.erp/dashboard</div>
+                </div>
+
+                <!-- Simulated Full Grand Luxe ERP Preview -->
+                <div style="display: flex; height: 580px; overflow: hidden; background: #F4F2F8; text-align: left;">
+                    <!-- Mini Preview Sidebar -->
+                    <div style="width: 210px; background: #F0EEF5; border-right: 1px solid #E5E0EE; padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 18px; padding-left: 6px;">
+                            <div class="brand-icon-star" style="width: 28px; height: 28px;">
+                                <svg viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.88rem; font-weight: 800; color: #19171E;">Grand Luxe</div>
+                                <div style="font-size: 0.65rem; color: #716D7C;">Hotel ERP</div>
+                            </div>
+                        </div>
+
+                        <div style="background: #19171E; color: #FFF; padding: 8px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; display: flex; align-items: center; gap: 8px; position: relative;">
+                            <span style="position: absolute; left: -12px; width: 3px; height: 16px; background: #FF762F; border-radius: 0 2px 2px 0;"></span>
+                            <span>🏠 Overview</span>
+                        </div>
+                        <div style="color: #716D7C; padding: 8px 12px; font-size: 0.78rem; font-weight: 600;">🛏️ Rooms & Inventory</div>
+                        <div style="color: #716D7C; padding: 8px 12px; font-size: 0.78rem; font-weight: 600;">👥 Customer Directory</div>
+                        <div style="color: #716D7C; padding: 8px 12px; font-size: 0.78rem; font-weight: 600;">📅 Reservations</div>
+                        <div style="color: #716D7C; padding: 8px 12px; font-size: 0.78rem; font-weight: 600;">💳 Payments & Billing</div>
+                        <div style="color: #716D7C; padding: 8px 12px; font-size: 0.78rem; font-weight: 600;">🍽️ Dining & Menus</div>
+                        <div style="color: #716D7C; padding: 8px 12px; font-size: 0.78rem; font-weight: 600;">🛎️ Hotel Services</div>
+                        <div style="color: #716D7C; padding: 8px 12px; font-size: 0.78rem; font-weight: 600;">🧹 Housekeeping</div>
+                        <div style="color: #716D7C; padding: 8px 12px; font-size: 0.78rem; font-weight: 600;">📊 SQL Analytics</div>
+                    </div>
+
+                    <!-- Mini Preview Main Content -->
+                    <div style="flex: 1; padding: 18px 22px; display: flex; flex-direction: column; gap: 14px; overflow: hidden;">
+                        <!-- Preview Top Bar -->
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="background: #FFF; border: 1px solid #E5E0EE; border-radius: 9999px; padding: 6px 16px; font-size: 0.75rem; color: #716D7C; width: 280px;">
+                                🔍 Search bookings, guests, rooms...
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 0.72rem; background: #E6F7ED; color: #15803D; padding: 4px 10px; border-radius: 9999px; font-weight: 700;">● MySQL 8.0 Live</span>
+                                <div style="display: flex; align-items: center; gap: 6px; background: #FFF; border: 1px solid #E5E0EE; border-radius: 9999px; padding: 4px 10px; font-size: 0.74rem; font-weight: 700;">
+                                    <span style="width: 20px; height: 20px; border-radius: 50%; background: #9180E8; color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 0.65rem;">AK</span>
+                                    <span>Aryam Khan</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preview KPI Row -->
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                            <div style="background: #FFF; border: 1px solid #E5E0EE; border-radius: 12px; padding: 12px 14px;">
+                                <div style="font-size: 0.7rem; color: #716D7C; font-weight: 600;">Total Bookings</div>
+                                <div style="font-size: 1.3rem; font-weight: 800; color: #19171E;">{{ stats.total_bookings or 20 }}</div>
+                                <div style="font-size: 0.65rem; color: #15803D; font-weight: 700;">↑ Live In-House</div>
+                            </div>
+                            <div style="background: #FFF; border: 1px solid #E5E0EE; border-radius: 12px; padding: 12px 14px;">
+                                <div style="font-size: 0.7rem; color: #716D7C; font-weight: 600;">Room Occupancy</div>
+                                <div style="font-size: 1.3rem; font-weight: 800; color: #19171E;">62%</div>
+                                <div style="font-size: 0.65rem; color: #7C3AED; font-weight: 600;">Active inventory</div>
+                            </div>
+                            <div style="background: #FFF; border: 1px solid #E5E0EE; border-radius: 12px; padding: 12px 14px;">
+                                <div style="font-size: 0.7rem; color: #716D7C; font-weight: 600;">Revenue (Collected)</div>
+                                <div style="font-size: 1.3rem; font-weight: 800; color: #19171E;">₹4,28,000</div>
+                                <div style="font-size: 0.65rem; color: #15803D; font-weight: 600;">MySQL Settlements</div>
+                            </div>
+                            <div style="background: #FFF; border: 1px solid #E5E0EE; border-radius: 12px; padding: 12px 14px;">
+                                <div style="font-size: 0.7rem; color: #716D7C; font-weight: 600;">Available Rooms</div>
+                                <div style="font-size: 1.3rem; font-weight: 800; color: #19171E;">{{ stats.total_rooms or 20 }}</div>
+                                <div style="font-size: 0.65rem; color: #EA580C; font-weight: 600;">3 Hotel Properties</div>
+                            </div>
+                        </div>
+
+                        <!-- Preview Middle Cards -->
+                        <div style="display: grid; grid-template-columns: 1.6fr 1fr; gap: 10px; flex: 1;">
+                            <div style="background: #FFF; border: 1px solid #E5E0EE; border-radius: 12px; padding: 14px; font-size: 0.72rem;">
+                                <div style="font-weight: 700; font-size: 0.8rem; margin-bottom: 8px;">Recent Reservations</div>
+                                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                                    <tr style="color: #716D7C; border-bottom: 1px solid #E5E0EE;">
+                                        <th style="padding: 4px 0;">Guest</th>
+                                        <th>Property</th>
+                                        <th>Room</th>
+                                        <th>Dates</th>
+                                        <th>Status</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid #F0EDF8;">
+                                        <td style="padding: 6px 0; font-weight: 600;">Aarav Sharma</td>
+                                        <td>Grand Horizon</td>
+                                        <td>101</td>
+                                        <td>Oct 10-15</td>
+                                        <td><span class="badge badge-green" style="font-size: 0.65rem;">Confirmed</span></td>
+                                        <td style="font-weight: 700;">₹21,000</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid #F0EDF8;">
+                                        <td style="padding: 6px 0; font-weight: 600;">Priya Nair</td>
+                                        <td>Grand Horizon</td>
+                                        <td>102</td>
+                                        <td>Oct 12-16</td>
+                                        <td><span class="badge badge-green" style="font-size: 0.65rem;">Confirmed</span></td>
+                                        <td style="font-weight: 700;">₹27,200</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 6px 0; font-weight: 600;">Rohan Mehta</td>
+                                        <td>Seaside Palace</td>
+                                        <td>G-201</td>
+                                        <td>Oct 14-18</td>
+                                        <td><span class="badge badge-blue" style="font-size: 0.65rem;">Completed</span></td>
+                                        <td style="font-weight: 700;">₹96,000</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div style="background: #FFF; border: 1px solid #E5E0EE; border-radius: 12px; padding: 14px;">
+                                <div style="font-weight: 700; font-size: 0.8rem; margin-bottom: 10px;">Occupancy by Property</div>
+                                <div style="display: flex; align-items: flex-end; justify-content: space-around; height: 110px; padding-top: 10px;">
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                                        <div style="font-size: 0.65rem; font-weight: 700; color: #EA580C;">78%</div>
+                                        <div style="width: 32px; height: 68px; background: #FF9E66; border-radius: 6px 6px 0 0;"></div>
+                                        <div style="font-size: 0.62rem; color: #716D7C;">Horizon</div>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                                        <div style="font-size: 0.65rem; font-weight: 700; color: #7C3AED;">60%</div>
+                                        <div style="width: 32px; height: 52px; background: #B09EFA; border-radius: 6px 6px 0 0;"></div>
+                                        <div style="font-size: 0.62rem; color: #716D7C;">Seaside</div>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                                        <div style="font-size: 0.65rem; font-weight: 700; color: #9180E8;">58%</div>
+                                        <div style="width: 32px; height: 50px; background: #C4B5FD; border-radius: 6px 6px 0 0;"></div>
+                                        <div style="font-size: 0.62rem; color: #716D7C;">Emerald</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Features Section (Image 1 Scroll-Storytelling) -->
+    <section class="landing-section" id="features">
+        <div class="section-header-centered reveal-init">
+            <div class="section-tag">ENGINEERED FOR EXCELLENCE</div>
+            <h2 class="section-title">Complete Hotel Operations Architecture</h2>
+            <p class="section-desc">
+                Built from the ground up on MySQL 8.0 in Third Normal Form (3NF) with ACID transactional integrity, server-side date validation, and responsive Jinja2 interfaces.
+            </p>
+        </div>
+
+        <div class="features-grid">
+            <!-- Feature 1 -->
+            <div class="feature-card reveal-init delay-1">
+                <div class="feature-icon-box" style="background: #FFF0E6; color: #FF762F;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                </div>
+                <h3>Reservation Lifecycle</h3>
+                <p>
+                    Create, update, check-in, check-out, and cancel bookings with pessimistic row-locking (<code style="background: #F0EDF8; padding: 2px 4px; border-radius: 4px;">SELECT ... FOR UPDATE</code>) preventing race conditions.
+                </p>
+                <a href="{{ url_for('bookings.list_bookings') }}" class="feature-card-link">View Reservations &rarr;</a>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="feature-card reveal-init delay-2">
+                <div class="feature-icon-box" style="background: #EFEAFD; color: #7C3AED;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7M2 7h20M7 7V4a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3"/></svg>
+                </div>
+                <h3>Room Inventory & Availability</h3>
+                <p>
+                    Full inventory catalog across Single, Double, Deluxe, and Suite rooms. Filter by date-range to query real availability via SQL subqueries.
+                </p>
+                <a href="{{ url_for('rooms.list_rooms') }}" class="feature-card-link">Explore Inventory &rarr;</a>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="feature-card reveal-init delay-3">
+                <div class="feature-icon-box" style="background: #ECE6FB; color: #9180E8;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <h3>Guest CRM Directory</h3>
+                <p>
+                    Manage guest profiles, unique email constraints, contact directories, stay history, and lifetime reservation expenditures with referential integrity.
+                </p>
+                <a href="{{ url_for('customers.list_customers') }}" class="feature-card-link">Customer Directory &rarr;</a>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="feature-card reveal-init delay-1">
+                <div class="feature-icon-box" style="background: #E6F7ED; color: #16A34A;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                </div>
+                <h3>Payment Settlement Ledger</h3>
+                <p>
+                    Record multi-channel payments across UPI, Cards, Net Banking, and Cash. Server-side validation prevents duplicate billing and overpayment.
+                </p>
+                <a href="{{ url_for('payments.list_payments') }}" class="feature-card-link">Billing Ledger &rarr;</a>
+            </div>
+
+            <!-- Feature 5 -->
+            <div class="feature-card reveal-init delay-2">
+                <div class="feature-icon-box" style="background: #FFF2E8; color: #EA580C;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <h3>Housekeeping & Services</h3>
+                <p>
+                    Automated cleaning task triggers upon guest checkout, sanitation audits, on-premise restaurant menus, and guest hospitality amenities.
+                </p>
+                <a href="{{ url_for('housekeeping.list_housekeeping') }}" class="feature-card-link">Housekeeping Logs &rarr;</a>
+            </div>
+
+            <!-- Feature 6 -->
+            <div class="feature-card reveal-init delay-3">
+                <div class="feature-icon-box" style="background: #DCD5FA; color: #5B45B2;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                </div>
+                <h3>14 SQL Analytical Reports</h3>
+                <p>
+                    Real-time business intelligence: occupancy rates, monthly revenues, receivables audit, employee workloads, and category statistics.
+                </p>
+                <a href="{{ url_for('analytics.index') }}" class="feature-card-link">View SQL Analytics &rarr;</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. Operations & Multi-Property Section -->
+    <section class="landing-section" id="operations" style="background: #FFFFFF; border-radius: 28px; border: 1px solid var(--border-color); margin-top: 40px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;">
+            <div class="reveal-init">
+                <div class="section-tag">MULTI-PROPERTY MANAGEMENT</div>
+                <h2 style="font-size: 2.2rem; font-weight: 800; color: #19171E; margin-bottom: 18px; letter-spacing: -0.02em;">
+                    Seamless Operations Across All Hotel Properties
+                </h2>
+                <p style="color: #716D7C; font-size: 1rem; line-height: 1.6; margin-bottom: 24px;">
+                    Whether managing The Grand Horizon in New Delhi, Seaside Royal Palace Resort in Goa, or Emerald Valley Heritage Hotel in Bengaluru, Grand Luxe centralizes room stock, guest profiles, staff allocations, and dining operations under a single relational database.
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                    <div style="display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 0.92rem; color: #19171E;">
+                        <span style="color: #FF762F; font-size: 1.1rem;">✓</span> Strict relational constraints & foreign keys in MySQL 8.0
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 0.92rem; color: #19171E;">
+                        <span style="color: #FF762F; font-size: 1.1rem;">✓</span> Parameterized SQL queries preventing SQL injection
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 0.92rem; color: #19171E;">
+                        <span style="color: #FF762F; font-size: 1.1rem;">✓</span> Automated housekeeping generation upon room checkout
+                    </div>
+                </div>
+            </div>
+
+            <div class="reveal-init delay-2" style="background: var(--surface-secondary); border-radius: 20px; padding: 32px; border: 1px solid var(--border-color);">
+                <div style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--lavender-dark); margin-bottom: 12px; letter-spacing: 0.05em;">
+                    LIVE DATABASE TOPOLOGY
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="background: #FFF; padding: 14px 18px; border-radius: 12px; border: 1px solid #E5E0EE; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>The Grand Horizon Hotel & Suites</strong>
+                            <div style="font-size: 0.78rem; color: #716D7C;">New Delhi · ⭐ 4.8 Rating</div>
+                        </div>
+                        <span class="badge badge-green">7 Rooms</span>
+                    </div>
+
+                    <div style="background: #FFF; padding: 14px 18px; border-radius: 12px; border: 1px solid #E5E0EE; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>Seaside Royal Palace Resort</strong>
+                            <div style="font-size: 0.78rem; color: #716D7C;">Goa · ⭐ 4.9 Rating</div>
+                        </div>
+                        <span class="badge badge-green">7 Rooms</span>
+                    </div>
+
+                    <div style="background: #FFF; padding: 14px 18px; border-radius: 12px; border: 1px solid #E5E0EE; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>Emerald Valley Heritage Hotel</strong>
+                            <div style="font-size: 0.78rem; color: #716D7C;">Bengaluru · ⭐ 4.7 Rating</div>
+                        </div>
+                        <span class="badge badge-green">6 Rooms</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. Call to Action Banner -->
+    <section class="landing-section" id="about">
+        <div class="landing-cta-banner reveal-init">
+            <h2>Experience Grand Luxe Hotel ERP</h2>
+            <p>
+                Engineered for college CAM 5 Database Application demonstration. Fully containerized with Docker Compose, Python Flask, and MySQL 8.0.
+            </p>
+            <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+                <a href="{{ url_for('dashboard.index') }}" class="btn btn-pill" style="background: #FF762F; color: #FFF; padding: 14px 34px; font-size: 1rem; font-weight: 700; box-shadow: 0 4px 18px rgba(255, 118, 47, 0.4);">
+                    Open Live Dashboard &rarr;
+                </a>
+                <a href="{{ url_for('dashboard.login') }}" class="btn btn-secondary btn-pill" style="padding: 14px 28px; font-size: 1rem; font-weight: 700;">
+                    Staff Authentication
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. Footer -->
+    <footer class="landing-footer">
+        <div class="landing-footer-inner">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="brand-icon-star" style="width: 30px; height: 30px;">
+                    <svg viewBox="0 0 24 24" style="width: 18px; height: 18px;"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
+                </div>
+                <div>
+                    <strong style="color: #19171E; font-size: 1rem;">Grand Luxe Hotel ERP</strong>
+                    <div style="font-size: 0.78rem; color: #716D7C;">Design and Development of a Database-Driven Web Application</div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 20px; font-size: 0.85rem; color: #716D7C;">
+                <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
+                <a href="{{ url_for('rooms.list_rooms') }}">Rooms</a>
+                <a href="{{ url_for('bookings.list_bookings') }}">Reservations</a>
+                <a href="{{ url_for('payments.list_payments') }}">Billing</a>
+                <a href="{{ url_for('analytics.index') }}">Analytics</a>
+                <a href="{{ url_for('dashboard.login') }}">Staff Login</a>
+            </div>
+
+            <div style="font-size: 0.78rem; color: #9590A0;">
+                B.Tech Computer Science & Engineering · CAM 5 Assignment © 2026
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll Animation Script -->
+    <script src="{{ url_for('static', filename='js/landing.js') }}"></script>
+</body>
+</html>

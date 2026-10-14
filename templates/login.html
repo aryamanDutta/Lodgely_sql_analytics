@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Login — Grand Luxe Hotel ERP</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body class="login-page-wrapper">
+
+    <div class="login-card">
+        <!-- Logo & Brand Header -->
+        <div class="login-brand-header">
+            <a href="{{ url_for('dashboard.landing') }}" style="display: inline-flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                <div class="brand-icon-star" style="width: 40px; height: 40px;">
+                    <svg viewBox="0 0 24 24" style="width: 22px; height: 22px;">
+                        <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
+                    </svg>
+                </div>
+                <div style="text-align: left;">
+                    <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); line-height: 1.1;">Grand Luxe</div>
+                    <div style="font-size: 0.74rem; color: var(--text-secondary); font-weight: 500;">Hotel ERP Platform</div>
+                </div>
+            </a>
+            <h2>Welcome Back</h2>
+            <p>Enter your staff credentials to access the operational ERP dashboard.</p>
+        </div>
+
+        <!-- Flash Alert Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" style="font-size: 0.82rem; padding: 10px 14px;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Quick Demo Staff Selector -->
+        <div class="demo-staff-box">
+            <div class="demo-title">⚡ Quick Demo Staff Profiles</div>
+            <div class="demo-pills-row">
+                <button type="button" class="demo-pill-btn" onclick="fillStaff('Aryam Khan', 'hotel_secure_pwd_2026')">
+                    <span>👑 <strong>Aryam Khan</strong> (Administrator)</span>
+                    <span style="color: var(--accent-orange); font-size: 0.7rem;">Select &rarr;</span>
+                </button>
+                <button type="button" class="demo-pill-btn" onclick="fillStaff('Sunita Verma', 'hotel_secure_pwd_2026')">
+                    <span>🛎️ <strong>Sunita Verma</strong> (Front Desk)</span>
+                    <span style="color: var(--accent-orange); font-size: 0.7rem;">Select &rarr;</span>
+                </button>
+                <button type="button" class="demo-pill-btn" onclick="fillStaff('Rajesh Khanna', 'hotel_secure_pwd_2026')">
+                    <span>👔 <strong>Rajesh Khanna</strong> (General Manager)</span>
+                    <span style="color: var(--accent-orange); font-size: 0.7rem;">Select &rarr;</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Login Form -->
+        <form method="POST" action="{{ url_for('dashboard.login') }}">
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <div class="form-group">
+                    <label for="identifier">Staff Username / Email Address *</label>
+                    <input type="text" id="identifier" name="identifier" class="form-control" 
+                           placeholder="e.g. Aryam Khan or aryam@grandluxe.hotel" 
+                           value="{{ identifier or 'Aryam Khan' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <label for="password">Password *</label>
+                        <button type="button" id="togglePasswordBtn" onclick="togglePassword()" 
+                                style="background: none; border: none; font-size: 0.75rem; color: var(--lavender-dark); font-weight: 600; cursor: pointer;">
+                            Show Password
+                        </button>
+                    </div>
+                    <input type="password" id="password" name="password" class="form-control" 
+                           placeholder="••••••••••••" value="hotel_secure_pwd_2026" required>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                        <input type="checkbox" name="remember" checked style="accent-color: var(--accent-orange);">
+                        <span>Remember this workstation</span>
+                    </label>
+                    <span style="color: var(--text-muted);">MySQL 8.0 Protected</span>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="padding: 12px; font-size: 0.95rem; border-radius: var(--radius-sm); margin-top: 8px;">
+                    Authenticate to Grand Luxe ERP &rarr;
+                </button>
+
+                <div style="text-align: center; margin-top: 14px; font-size: 0.84rem; color: var(--text-secondary);">
+                    <a href="{{ url_for('dashboard.landing') }}" style="color: var(--text-muted); text-decoration: none;">
+                        &larr; Return to Public Home Page
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const input = document.getElementById('password');
+            const btn = document.getElementById('togglePasswordBtn');
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = 'Hide Password';
+            } else {
+                input.type = 'password';
+                btn.textContent = 'Show Password';
+            }
+        }
+
+        function fillStaff(name, pass) {
+            document.getElementById('identifier').value = name;
+            document.getElementById('password').value = pass;
+        }
+    </script>
+</body>
+</html>
